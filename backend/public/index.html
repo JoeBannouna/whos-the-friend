@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friend Group Questions</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --cream: #fdf6ec;
+        --ink: #1a1208;
+        --gold: #c9922b;
+        --blush: #e8c4a0;
+        --warm: #f5e6d0;
+        --muted: #8a7560;
+      }
+
+      body {
+        background: var(--cream);
+        color: var(--ink);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        padding: 40px 20px 60px;
+        background-image:
+          radial-gradient(
+            circle at 10% 20%,
+            rgba(201, 146, 43, 0.07) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            rgba(232, 196, 160, 0.15) 0%,
+            transparent 50%
+          );
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 48px;
+        position: relative;
+      }
+
+      header::before {
+        content: "✦ ✦ ✦";
+        display: block;
+        font-size: 12px;
+        letter-spacing: 8px;
+        color: var(--gold);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        line-height: 1.1;
+        color: var(--ink);
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--gold);
+      }
+
+      .subtitle {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+      }
+
+      .divider {
+        width: 60px;
+        height: 2px;
+        background: var(--gold);
+        margin: 20px auto 0;
+        opacity: 0.6;
+      }
+
+      .categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 36px;
+      }
+
+      .cat-btn {
+        background: none;
+        border: 1.5px solid var(--blush);
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 7px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .cat-btn:hover,
+      .cat-btn.active {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: white;
+      }
+
+      .questions-grid {
+        max-width: 680px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .question-card {
+        background: white;
+        border: 1px solid rgba(201, 146, 43, 0.15);
+        border-radius: 14px;
+        padding: 20px 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s,
+          border-color 0.2s;
+        animation: fadeSlide 0.3s ease both;
+        box-shadow: 0 2px 8px rgba(26, 18, 8, 0.04);
+      }
+
+      .question-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(26, 18, 8, 0.08);
+        border-color: rgba(201, 146, 43, 0.35);
+      }
+
+      .question-card.highlighted {
+        background: var(--warm);
+        border-color: var(--gold);
+      }
+
+      @keyframes fadeSlide {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .q-num {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        color: var(--blush);
+        min-width: 28px;
+        line-height: 1.4;
+      }
+
+      .q-content {
+        flex: 1;
+      }
+
+      .q-category {
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 4px;
+      }
+
+      .q-text {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--ink);
+      }
+
+      .q-icon {
+        font-size: 1.4rem;
+        opacity: 0.75;
+      }
+
+      .random-btn {
+        display: block;
+        margin: 36px auto 0;
+        background: var(--ink);
+        color: var(--cream);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.15s;
+      }
+
+      .random-btn:hover {
+        background: var(--gold);
+        transform: scale(1.03);
+      }
+
+      .count-badge {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 20px;
+        letter-spacing: 0.03em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Who in the group<br /><em>would most likely…</em></h1>
+      <p class="subtitle">Pick a card. Point fingers. No take-backs.</p>
+      <div class="divider"></div>
+    </header>
+
+    <div class="categories">
+      <button class="cat-btn active" onclick="filterCategory('all', this)">
+        All
+      </button>
+      <button class="cat-btn" onclick="filterCategory('trust', this)">
+        Trust & Loyalty
+      </button>
+      <button class="cat-btn" onclick="filterCategory('personality', this)">
+        Personality
+      </button>
+      <button class="cat-btn" onclick="filterCategory('wild', this)">
+        Wild Card
+      </button>
+      <button class="cat-btn" onclick="filterCategory('life', this)">
+        Life Goals
+      </button>
+      <button class="cat-btn" onclick="filterCategory('skills', this)">
+        Skills & Smarts
+      </button>
+    </div>
+
+    <div class="count-badge" id="count-badge">40 questions</div>
+
+    <div class="questions-grid" id="questions-grid"></div>
+
+    <button class="random-btn" onclick="highlight()">
+      🎲 Highlight a random one
+    </button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+    </script>
+
+    <script>
+      let questions = [];
+
+      fetch("/assets/questions.json")
+        .then((res) => res.json())
+        .then((res) => {
+          questions = res;
+
+          let activeCategory = "all";
+
+          function render(filter) {
+            const grid = document.getElementById("questions-grid");
+            const badge = document.getElementById("count-badge");
+            const filtered =
+              filter === "all"
+                ? questions
+                : questions.filter((q) => q.cat === filter);
+            badge.textContent = `${filtered.length} question${filtered.length !== 1 ? "s" : ""}`;
+            grid.innerHTML = "";
+            filtered.forEach((q, i) => {
+              const card = document.createElement("div");
+              card.className = "question-card";
+              card.id = `card-${i}`;
+              card.innerHTML = `
+      <span class="q-num">${String(i + 1).padStart(2, "0")}</span>
+      <div class="q-content">
+        <div class="q-category">${q.cat.replace("skills", "Skills & Smarts").replace("wild", "Wild Card").replace("trust", "Trust & Loyalty").replace("personality", "Personality").replace("life", "Life Goals")}</div>
+        <div class="q-text">${q.text}</div>
+      </div>
+      <span class="q-icon">${q.icon}</span>
+    `;
+              card.style.animationDelay = `${i * 0.03}s`;
+              card.onclick = () => card.classList.toggle("highlighted");
+              grid.appendChild(card);
+            });
+          }
+
+          function filterCategory(cat, btn) {
+            activeCategory = cat;
+            document
+              .querySelectorAll(".cat-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            render(cat);
+          }
+
+          function highlight() {
+            document
+              .querySelectorAll(".question-card")
+              .forEach((c) => c.classList.remove("highlighted"));
+            const cards = document.querySelectorAll(".question-card");
+            const pick = cards[Math.floor(Math.random() * cards.length)];
+            pick.classList.add("highlighted");
+            pick.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+
+          render("all");
+        });
+    </script>
+  </body>
+</html>
