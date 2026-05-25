@@ -5,9 +5,10 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
-    "dev": "nodemon dist/index.js"
+    "dev": "nodemon dist/index.js",
+    "test": "cd dist/tests && node test.js"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

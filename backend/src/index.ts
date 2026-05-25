@@ -1,7 +1,6 @@
 import express from 'express'
 import { Server } from "socket.io";
 
-
 const app = express();
 
 app.use(function(req, res, next) {
@@ -10,10 +9,6 @@ app.use(function(req, res, next) {
   res.setHeader("Access-Control-Allow-Headers", "*");
   next();
 });
-
-// app.get('/', (req, res) => {
-//   res.send('Hello world');
-// })
 
 app.use(express.static('public'));
 
@@ -30,4 +25,3 @@ io.on('connection', socket => {
   });
 });
 
-// io.listen(6000)

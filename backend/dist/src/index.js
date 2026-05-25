@@ -7,9 +7,6 @@ app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Headers", "*");
     next();
 });
-// app.get('/', (req, res) => {
-//   res.send('Hello world');
-// })
 app.use(express.static('public'));
 const server = app.listen(5000, () => console.log('Running...'));
 const io = new Server(server, { cors: { origin: '*' } });
@@ -22,5 +19,4 @@ io.on('connection', socket => {
         console.log('A user disconnected');
     });
 });
-// io.listen(6000)
 //# sourceMappingURL=index.js.map
