@@ -60,6 +60,12 @@ export type StreamableRoomData = {
     gamePaused: boolean;
 };
 interface IRoomView {
+    getAllRooms(): Promise<{
+        roomName: string;
+        roomId: string;
+        playersNumber: number;
+        roomStatus: RoomStatus;
+    }[]>;
     createRoom(roomName: string, password: string): Promise<string | null>;
     getRoom(roomId: string): Promise<RoomData | null>;
     addPlayer(roomId: string, playerName: string, roomPasswordAttempt: string): Promise<string | null>;

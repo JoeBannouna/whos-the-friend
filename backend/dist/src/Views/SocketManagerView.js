@@ -17,7 +17,7 @@ const SocketManagerView = {
             const playerName = socket.data.playerName;
             const roomId = socket.data.roomId;
             const roomPassword = socket.data.roomPassword;
-            let playerId = socket.data.playerId || null;
+            let playerIdTemp = socket.data.playerId || null;
             if ((await RoomView.getRoom(roomId)) === null)
                 socket.disconnect();
             else {
@@ -27,15 +27,19 @@ const SocketManagerView = {
                     else
                         console.log('error emitting to roomId:' + roomId);
                 };
-                if (playerId === null)
-                    playerId = await RoomView.addPlayer(roomId, playerName, roomPassword);
+                if (playerIdTemp === null) {
+                    playerIdTemp = await RoomView.addPlayer(roomId, playerName, roomPassword);
+                    console.log('New player join!!');
+                }
                 else {
-                    const reconnectionEvent = await RoomView.reconnectPlayer(roomId, playerId);
+                    const reconnectionEvent = await RoomView.reconnectPlayer(roomId, playerIdTemp);
                     if (reconnectionEvent !== null)
                         emitToRoom(reconnectionEvent);
                     else
                         socket.disconnect();
+                    console.log('Player reconnected!!');
                 }
+                const playerId = playerIdTemp; // must use const for typescript to be happy
                 if (playerId === null)
                     socket.disconnect();
                 else {
@@ -47,6 +51,7 @@ const SocketManagerView = {
                     // socket.on('reply', () => { /* … */ }); // listen to the event
                     socket.on('remove_player', arg1 => {
                         console.log(arg1);
+                        console.log('Player left');
                         // removePlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
                     });
                     // updatePlayerVoteForCurrentQuestion(
@@ -61,6 +66,7 @@ const SocketManagerView = {
                     socket.on('disconnect', async () => {
                         const disconnectEvent = await RoomView.disconnectPlayer(roomId, playerId);
                         emitToRoom(disconnectEvent);
+                        console.log('Player left join!!');
                     });
                 }
             }

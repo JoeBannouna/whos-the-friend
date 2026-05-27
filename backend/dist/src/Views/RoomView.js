@@ -50,6 +50,14 @@ async function constructBroadcastMessage(targetRoom) {
     return broadcastMessage;
 }
 const RoomView = {
+    async getAllRooms() {
+        return appState.rooms.map(room => ({
+            roomId: room.id,
+            roomName: room.name,
+            playersNumber: room.players.length,
+            roomStatus: room.status,
+        }));
+    },
     createRoom: async function (roomName, password) {
         const roomId = makeRoomIdFromName(roomName);
         const newRoom = {

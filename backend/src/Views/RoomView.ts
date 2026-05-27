@@ -121,6 +121,14 @@ async function constructBroadcastMessage(targetRoom: RoomData) {
 }
 
 interface IRoomView {
+  getAllRooms(): Promise<
+    {
+      roomName: string;
+      roomId: string;
+      playersNumber: number;
+      roomStatus: RoomStatus;
+    }[]
+  >;
   createRoom(roomName: string, password: string): Promise<string | null>;
   getRoom(roomId: string): Promise<RoomData | null>;
   addPlayer(
@@ -146,6 +154,16 @@ interface IRoomView {
 }
 
 const RoomView: IRoomView = {
+  async getAllRooms(): Promise<
+    { roomName: string; roomId: string; playersNumber: number; roomStatus: RoomStatus }[]
+  > {
+    return appState.rooms.map(room => ({
+      roomId: room.id,
+      roomName: room.name,
+      playersNumber: room.players.length,
+      roomStatus: room.status,
+    }));
+  },
   createRoom: async function (roomName: string, password: string): Promise<string | null> {
     const roomId = makeRoomIdFromName(roomName);
     const newRoom: RoomData = {
