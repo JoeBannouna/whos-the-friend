@@ -1,5 +1,9 @@
 import roomTest from './roomTest.js';
-const tests = [roomTest];
+// import socketManagerTest from './socketManagerTest.js';
+const tests = [
+    roomTest,
+    // socketManagerTest
+];
 async function main() {
     tests.forEach(async (test, index) => {
         const passed = await test();

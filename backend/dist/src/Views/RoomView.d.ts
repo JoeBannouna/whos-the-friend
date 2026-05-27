@@ -19,12 +19,18 @@ type CategoryData = {
     name: string;
     questions: QuestionData[];
 };
-type RoomStatus = 'waiting_for_players' | 'accepting_votes' | 'announcing_question_winner' | 'announcing_category_winner' | 'announcing_game_winner' | 'game_paused' | 'game_finished';
+type RoomStatus = 'waiting_for_players' | 'accepting_votes' | 'announcing_question_winner' | 'announcing_category_winner' | 'announcing_game_winner' | 'game_finished';
+type PodiumSpot = {
+    playerId: string;
+    playerName: string;
+    votes: number;
+};
 type GameResultsData = {
     questionWinners: {
         questionId: string;
         winnerId: string;
     }[];
+    currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot];
     categoryWinners: {
         categoryId: string;
         winnerId: string;
@@ -42,24 +48,32 @@ type RoomData = {
     playerVotes: VoteData[];
     gameResults: GameResultsData;
     status: RoomStatus;
+    gamePaused: boolean;
 };
-type AppStateData = {
-    rooms: RoomData[];
+export type StreamableRoomData = {
+    players: PlayerData[];
+    currentCategory: CategoryData | null;
+    currentQuestion: QuestionData | null;
+    currentQuestionVotes: VoteData[];
+    gameResults: GameResultsData;
+    status: RoomStatus;
+    gamePaused: boolean;
 };
-export declare const appState: AppStateData;
 interface IRoomView {
     createRoom(roomName: string, password: string): Promise<string | null>;
     getRoom(roomId: string): Promise<RoomData | null>;
     addPlayer(roomId: string, playerName: string, roomPasswordAttempt: string): Promise<string | null>;
-    disconnectPlayer(roomId: string, playerId: string): Promise<boolean>;
-    reconnectPlayer(roomId: string, playerId: string): Promise<boolean>;
+    playerExists(roomId: string, playerId: string): Promise<boolean>;
+    disconnectPlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
+    reconnectPlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
     getConnectedPlayers(roomId: string): Promise<PlayerData[] | null>;
-    removePlayer(roomId: string, playerId: string): Promise<boolean>;
-    updatePlayerVoteForCurrentQuestion(roomId: string, voterId: string, nomineeId: string): Promise<boolean>;
-    startGame(roomId: string): Promise<boolean>;
-    pauseGame(roomId: string): Promise<boolean>;
-    nextQuestion(roomId: string): Promise<boolean>;
-    broadcastRoomStateToPlayers(roomId: string): Promise<boolean>;
+    removePlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
+    updatePlayerVoteForCurrentQuestion(roomId: string, voterId: string, nomineeId: string): Promise<StreamableRoomData | null>;
+    startGame(roomId: string): Promise<StreamableRoomData | null>;
+    pauseGame(roomId: string): Promise<StreamableRoomData | null>;
+    resumeGame(roomId: string): Promise<StreamableRoomData | null>;
+    next(roomId: string): Promise<StreamableRoomData | null>;
+    getStreamableGameState(roomId: string): Promise<StreamableRoomData | null>;
 }
 declare const RoomView: IRoomView;
 export default RoomView;

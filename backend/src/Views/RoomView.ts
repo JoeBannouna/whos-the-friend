@@ -1,25 +1,32 @@
 import fs from 'node:fs/promises';
 
 // represents a singular vote from one player to another
-type VoteData = { voterId: string, nomineeId: string, questionId: string, categoryId: string };
+type VoteData = {
+  voterId: string;
+  nomineeId: string;
+  questionId: string;
+  categoryId: string;
+};
 
-type PlayerData = { name: string, id: string, connected: boolean }
-type QuestionData = { id: string, text: string, icon: string }
-type CategoryData = { id: string, name: string, questions: QuestionData[] }
+type PlayerData = { name: string; id: string; connected: boolean };
+type QuestionData = { id: string; text: string; icon: string };
+type CategoryData = { id: string; name: string; questions: QuestionData[] };
 type RoomStatus =
-  'waiting_for_players' |
-  'accepting_votes' |
-  'announcing_question_winner' |
-  'announcing_category_winner' |
-  'announcing_game_winner' |
-  'game_paused' |
-  'game_finished';
+  | 'waiting_for_players'
+  | 'accepting_votes'
+  | 'announcing_question_winner'
+  | 'announcing_category_winner'
+  | 'announcing_game_winner'
+  | 'game_finished';
+
+type PodiumSpot = { playerId: string; playerName: string; votes: number };
 
 type GameResultsData = {
-  questionWinners: { questionId: string, winnerId: string }[];
-  categoryWinners: { categoryId: string, winnerId: string }[];
+  questionWinners: { questionId: string; winnerId: string }[];
+  currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot];
+  categoryWinners: { categoryId: string; winnerId: string }[];
   gameWinnerId: string | null;
-}
+};
 
 type RoomData = {
   name: string;
@@ -32,22 +39,25 @@ type RoomData = {
   playerVotes: VoteData[];
   gameResults: GameResultsData;
   status: RoomStatus;
-}
+  gamePaused: boolean;
+};
 
 type AppStateData = {
   rooms: RoomData[];
-}
+};
 
 // only the data needed to be streamed over websockets
-type StreamableRoomData = {
+export type StreamableRoomData = {
   players: PlayerData[];
-  currentCategory: CategoryData;
-  currentQuestion: QuestionData;
+  currentCategory: CategoryData | null;
+  currentQuestion: QuestionData | null;
   currentQuestionVotes: VoteData[];
+  gameResults: GameResultsData;
   status: RoomStatus;
-}
+  gamePaused: boolean;
+};
 
-export const appState: AppStateData = { rooms: [] };
+const appState: AppStateData = { rooms: [] };
 
 function makeRoomIdFromName(roomName: string) {
   return roomName.replaceAll(' ', '-').toLowerCase();
@@ -57,24 +67,30 @@ function randomPlayerId() {
   return Math.ceil(Math.random() * 10000000).toString();
 }
 
-type FileCategory = { name: string, id: string }
-type FileQuestion = { text: string, cat: string, icon: string }
+type FileCategory = { name: string; id: string };
+type FileQuestion = { text: string; cat: string; icon: string };
 
 async function populateRoomContent(roomId: string): Promise<boolean> {
   try {
-    const response = await fs.readFile('../../public/assets/questions.json', { encoding: 'utf8' });
-    const data: { categories: FileCategory[], questions: FileQuestion[] } = JSON.parse(response);
+    const response = await fs.readFile('../../public/assets/questions.json', {
+      encoding: 'utf8',
+    });
+    const data: { categories: FileCategory[]; questions: FileQuestion[] } = JSON.parse(response);
 
     const targetRoom = appState.rooms.find(r => r.id == roomId) || null;
     if (!targetRoom) return false;
 
     data.categories.forEach(category => {
-      const newCategory: CategoryData = { name: category.name, id: category.id, questions: [] };
+      const newCategory: CategoryData = {
+        name: category.name,
+        id: category.id,
+        questions: [],
+      };
       data.questions
         .filter(q => q.cat == newCategory.id)
-        .forEach(q => newCategory.questions.push({ id: q.text, text: q.text, icon: q.icon }))
+        .forEach(q => newCategory.questions.push({ id: q.text, text: q.text, icon: q.icon }));
       targetRoom.categories.push(newCategory);
-    })
+    });
 
     return true;
   } catch (err) {
@@ -82,24 +98,55 @@ async function populateRoomContent(roomId: string): Promise<boolean> {
   }
 }
 
+async function constructBroadcastMessage(targetRoom: RoomData) {
+  const currCategory =
+    targetRoom.categories.find(c => c.id == targetRoom.currentCategoryId) || null;
+  const currQuestion =
+    currCategory === null
+      ? null
+      : currCategory.questions.find(q => q.id == targetRoom.currentQuestionId) || null;
+  const currQuestionVotes =
+    targetRoom.playerVotes.filter(vote => vote.questionId == targetRoom.currentQuestionId) || [];
+
+  const broadcastMessage: StreamableRoomData = {
+    status: targetRoom.status,
+    players: targetRoom.players,
+    currentCategory: currCategory,
+    currentQuestion: currQuestion,
+    currentQuestionVotes: currQuestionVotes,
+    gameResults: targetRoom.gameResults,
+    gamePaused: targetRoom.gamePaused,
+  };
+  return broadcastMessage;
+}
+
 interface IRoomView {
   createRoom(roomName: string, password: string): Promise<string | null>;
   getRoom(roomId: string): Promise<RoomData | null>;
-  addPlayer(roomId: string, playerName: string, roomPasswordAttempt: string): Promise<string | null>;
-  // getPlayer(roomId: string, playerId: string): Promise<boolean>;
-  disconnectPlayer(roomId: string, playerId: string): Promise<boolean>;
-  reconnectPlayer(roomId: string, playerId: string): Promise<boolean>;
+  addPlayer(
+    roomId: string,
+    playerName: string,
+    roomPasswordAttempt: string
+  ): Promise<string | null>;
+  playerExists(roomId: string, playerId: string): Promise<boolean>;
+  disconnectPlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
+  reconnectPlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
   getConnectedPlayers(roomId: string): Promise<PlayerData[] | null>;
-  removePlayer(roomId: string, playerId: string): Promise<boolean>;
-  updatePlayerVoteForCurrentQuestion(roomId: string, voterId: string, nomineeId: string): Promise<boolean>;
-  startGame(roomId: string): Promise<boolean>;
-  pauseGame(roomId: string): Promise<boolean>;
-  nextQuestion(roomId: string): Promise<boolean>;
-  broadcastRoomStateToPlayers(roomId: string): Promise<boolean>;
+  removePlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
+  updatePlayerVoteForCurrentQuestion(
+    roomId: string,
+    voterId: string,
+    nomineeId: string
+  ): Promise<StreamableRoomData | null>;
+  startGame(roomId: string): Promise<StreamableRoomData | null>;
+  pauseGame(roomId: string): Promise<StreamableRoomData | null>;
+  resumeGame(roomId: string): Promise<StreamableRoomData | null>;
+  next(roomId: string): Promise<StreamableRoomData | null>;
+  getStreamableGameState(roomId: string): Promise<StreamableRoomData | null>;
 }
 
 const RoomView: IRoomView = {
-  createRoom: async function(roomName: string, password: string): Promise<string | null> {
+  createRoom: async function (roomName: string, password: string): Promise<string | null> {
     const roomId = makeRoomIdFromName(roomName);
     const newRoom: RoomData = {
       name: roomName,
@@ -110,20 +157,34 @@ const RoomView: IRoomView = {
       currentCategoryId: '',
       currentQuestionId: '',
       playerVotes: [],
-      gameResults: { questionWinners: [], categoryWinners: [], gameWinnerId: null },
+      gameResults: {
+        questionWinners: [],
+        categoryWinners: [],
+        gameWinnerId: null,
+        currentPodium: [
+          { playerId: '', playerName: '', votes: 0 },
+          { playerId: '', playerName: '', votes: 0 },
+          { playerId: '', playerName: '', votes: 0 },
+        ],
+      },
       status: 'waiting_for_players',
-    }
+      gamePaused: false,
+    };
     appState.rooms.push(newRoom);
 
     await populateRoomContent(roomId);
 
     return roomId;
   },
-  getRoom: async function(roomId: string): Promise<RoomData | null> {
+  getRoom: async function (roomId: string): Promise<RoomData | null> {
     return appState.rooms.find(room => room.id == roomId) || null;
   },
-  addPlayer: async function(roomId: string, playerName: string, roomPasswordAttempt: string): Promise<string | null> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
+  addPlayer: async function (
+    roomId: string,
+    playerName: string,
+    roomPasswordAttempt: string
+  ): Promise<string | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
     if (!targetRoom) return null;
     if (targetRoom.status != 'waiting_for_players') return null;
     if (targetRoom.password != roomPasswordAttempt) return null;
@@ -132,65 +193,290 @@ const RoomView: IRoomView = {
     const newPlayer: PlayerData = {
       name: playerName,
       id: playerId,
-      connected: true
-    }
+      connected: true,
+    };
     targetRoom.players.push(newPlayer);
 
     return playerId;
   },
-  removePlayer: async function(roomId: string, playerId: string): Promise<boolean> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
+  playerExists: async function (roomId: string, playerId: string): Promise<boolean> {
+    const targetRoom = await RoomView.getRoom(roomId);
     if (!targetRoom) return false;
-    if (targetRoom.status != 'waiting_for_players') return false;
 
-    const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId) || null;
-    if (!targetPlayerIndex) return false;
+    return targetRoom.players.find(p => p.id === playerId) !== undefined;
+  },
+  removePlayer: async function (
+    roomId: string,
+    playerId: string
+  ): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+    if (targetRoom.status != 'waiting_for_players') return null;
+
+    const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId);
+    if (targetPlayerIndex === -1) return null;
 
     targetRoom.players.splice(targetPlayerIndex, 1);
 
-    return true;
+    return constructBroadcastMessage(targetRoom);
   },
-  disconnectPlayer: async function(roomId: string, playerId: string): Promise<boolean> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
-    if (!targetRoom) return false;
+  disconnectPlayer: async function (
+    roomId: string,
+    playerId: string
+  ): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
 
     const targetPlayer = targetRoom.players.find(p => p.id == playerId) || null;
-    if (!targetPlayer) return false;
+    if (!targetPlayer) return null;
 
     targetPlayer.connected = false;
-    return true;
+    return constructBroadcastMessage(targetRoom);
   },
-  reconnectPlayer: async function(roomId: string, playerId: string): Promise<boolean> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
-    if (!targetRoom) return false;
+  reconnectPlayer: async function (
+    roomId: string,
+    playerId: string
+  ): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
 
     const targetPlayer = targetRoom.players.find(p => p.id == playerId) || null;
-    if (!targetPlayer) return false;
+    if (!targetPlayer) return null;
 
     targetPlayer.connected = true;
-    return true;
+    return constructBroadcastMessage(targetRoom);
   },
-  getConnectedPlayers: async function(roomId: string): Promise<PlayerData[] | null> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
+  getConnectedPlayers: async function (roomId: string): Promise<PlayerData[] | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
     if (!targetRoom) return null;
 
     return targetRoom.players.filter(p => p.connected);
   },
-  startGame: async function(roomId: string): Promise<boolean> {
-    const targetRoom = appState.rooms.find(r => r.id == roomId);
-    if (!targetRoom) return false;
+  startGame: async function (roomId: string): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
 
-    if (targetRoom.status !== 'waiting_for_players') return false;
+    if (targetRoom.status !== 'waiting_for_players') return null;
 
-    if (targetRoom.categories.length && targetRoom.categories[0]!.questions.length) {
+    await RoomView.next(roomId);
+
+    return constructBroadcastMessage(targetRoom);
+  },
+  pauseGame: async function (roomId: string): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+
+    if (targetRoom.gamePaused) return null;
+
+    targetRoom.gamePaused = true;
+    return constructBroadcastMessage(targetRoom);
+  },
+  resumeGame: async function (roomId: string): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+
+    if (!targetRoom.gamePaused) return null;
+
+    targetRoom.gamePaused = false;
+    return constructBroadcastMessage(targetRoom);
+  },
+  next: async function (roomId: string): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+
+    const allConnectedPlayersHaveVoted = !targetRoom.players
+      .filter(p => p.connected)
+      .map(
+        p =>
+          targetRoom.playerVotes.find(
+            vote => vote.voterId == p.id && vote.questionId == targetRoom.currentQuestionId
+          )?.voterId || null
+      )
+      .includes(null);
+
+    const updateQuestionWinners = () => {
+      const podium: PodiumSpot[] = targetRoom.players
+        .map(p => ({
+          playerId: p.id,
+          playerName: p.name,
+          votes: targetRoom.playerVotes.filter(vote => {
+            return vote.questionId == targetRoom.currentQuestionId && vote.nomineeId == p.id;
+          }).length,
+        }))
+        .sort((p1, p2) => p2.votes - p1.votes);
+
+      const winnerId = podium[0]!.playerId;
+      targetRoom.gameResults.questionWinners.push({
+        winnerId: winnerId,
+        questionId: targetRoom.currentQuestionId,
+      });
+
+      targetRoom.gameResults.currentPodium = [podium[0]!, podium[1]!, podium[2]!];
+    };
+
+    const updateCategoryWinners = () => {
+      const podium: PodiumSpot[] = targetRoom.players
+        .map(p => ({
+          playerId: p.id,
+          playerName: p.name,
+          votes: targetRoom.playerVotes.filter(vote => {
+            return vote.categoryId == targetRoom.currentCategoryId && vote.nomineeId == p.id;
+          }).length,
+        }))
+        .sort((p1, p2) => p2.votes - p1.votes);
+
+      const winnerId = podium[0]!.playerId;
+      targetRoom.gameResults.categoryWinners.push({
+        winnerId: winnerId,
+        categoryId: targetRoom.currentCategoryId,
+      });
+
+      targetRoom.gameResults.currentPodium = [podium[0]!, podium[1]!, podium[2]!];
+    };
+
+    const updateGameWinner = () => {
+      targetRoom.gameResults.gameWinnerId = targetRoom.players
+        .map(p => ({
+          playerId: p.id,
+          votes: targetRoom.playerVotes.filter(vote => vote.nomineeId == p.id).length,
+        }))
+        .sort((p1, p2) => p2.votes - p1.votes)[0]!.playerId;
+    };
+
+    let nextQuestionInCurrCategoryExists;
+    let nextCategoryExists;
+
+    const currCategoryIndex = targetRoom.categories.findIndex(
+      c => c.id == targetRoom.currentCategoryId
+    );
+
+    const currCategory = currCategoryIndex != -1 ? targetRoom.categories[currCategoryIndex]! : null;
+    const currQuestionIndex = currCategory
+      ? currCategory.questions.findIndex(q => q.id == targetRoom.currentQuestionId)
+      : -1;
+
+    if (currQuestionIndex === -1) {
+      nextCategoryExists = false;
+    } else {
+      if (currCategory !== null && currCategoryIndex !== -1)
+        nextCategoryExists = currCategoryIndex + 1 < targetRoom.categories.length;
+      else nextCategoryExists = false;
+    }
+
+    if (currCategoryIndex === -1) {
+      nextQuestionInCurrCategoryExists = false;
+    } else {
+      if (currCategory && currQuestionIndex !== -1)
+        nextQuestionInCurrCategoryExists = currQuestionIndex + 1 < currCategory.questions.length;
+      else nextQuestionInCurrCategoryExists = false;
+    }
+
+    const advanceToNextQuestion = () => {
+      targetRoom.currentQuestionId =
+        targetRoom.categories[currCategoryIndex!]!.questions[currQuestionIndex! + 1]!.id;
+    };
+
+    const advanceToNextCategory = () => {
+      targetRoom.currentCategoryId = targetRoom.categories[currCategoryIndex! + 1]!.id;
+      targetRoom.currentQuestionId =
+        targetRoom.categories[currCategoryIndex! + 1]!.questions[0]!.id;
+    };
+
+    const advanceToFirstQuestion = () => {
       targetRoom.currentCategoryId = targetRoom.categories[0]!.id;
       targetRoom.currentQuestionId = targetRoom.categories[0]!.questions[0]!.id;
-    } else return false;
+    };
 
-    targetRoom.status = 'accepting_votes';
+    const finishGame = () => {
+      // save to a database or something?
+    };
 
-    return true;
+    switch (targetRoom.status) {
+      case 'accepting_votes':
+        if (allConnectedPlayersHaveVoted) {
+          updateQuestionWinners();
+          targetRoom.status = 'announcing_question_winner';
+        } else return null;
+        break;
+
+      case 'announcing_question_winner':
+        if (nextQuestionInCurrCategoryExists) {
+          advanceToNextQuestion();
+          targetRoom.status = 'accepting_votes';
+        } else {
+          updateCategoryWinners();
+          targetRoom.status = 'announcing_category_winner';
+        }
+        break;
+
+      case 'announcing_category_winner':
+        if (nextCategoryExists) {
+          advanceToNextCategory();
+          targetRoom.status = 'accepting_votes';
+        } else {
+          updateGameWinner();
+          targetRoom.status = 'announcing_game_winner';
+        }
+        break;
+
+      case 'waiting_for_players':
+        advanceToFirstQuestion();
+        targetRoom.status = 'accepting_votes';
+        break;
+
+      case 'announcing_game_winner':
+        finishGame();
+        targetRoom.status = 'game_finished';
+        break;
+
+      case 'game_finished':
+        // nothing to do?
+        break;
+
+      default:
+        break;
+    }
+
+    return constructBroadcastMessage(targetRoom);
   },
-}
+  updatePlayerVoteForCurrentQuestion: async function (
+    roomId: string,
+    voterId: string,
+    nomineeId: string
+  ): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+    if (targetRoom.status !== 'accepting_votes') return null;
+    if (voterId == nomineeId) return null; // cant vote for self
+
+    const newVote: VoteData = {
+      categoryId: targetRoom.currentCategoryId,
+      questionId: targetRoom.currentQuestionId,
+      voterId: voterId,
+      nomineeId: nomineeId,
+    };
+
+    const existingVoteIndex = targetRoom.playerVotes.findIndex(
+      vote =>
+        vote.categoryId == targetRoom.currentCategoryId &&
+        vote.questionId == targetRoom.currentQuestionId &&
+        vote.voterId == voterId
+    );
+
+    if (existingVoteIndex !== -1) {
+      targetRoom.playerVotes[existingVoteIndex] = newVote;
+    } else {
+      targetRoom.playerVotes.push(newVote);
+    }
+
+    return constructBroadcastMessage(targetRoom);
+  },
+  getStreamableGameState: async function (roomId: string): Promise<StreamableRoomData | null> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return null;
+
+    return constructBroadcastMessage(targetRoom);
+  },
+};
 
 export default RoomView;
