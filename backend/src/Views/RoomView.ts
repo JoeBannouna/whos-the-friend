@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 // represents a singular vote from one player to another
 type VoteData = {
@@ -48,6 +49,7 @@ type AppStateData = {
 
 // only the data needed to be streamed over websockets
 export type StreamableRoomData = {
+  roomId: string;
   players: PlayerData[];
   currentCategory: CategoryData | null;
   currentQuestion: QuestionData | null;
@@ -72,7 +74,10 @@ type FileQuestion = { text: string; cat: string; icon: string };
 
 async function populateRoomContent(roomId: string): Promise<boolean> {
   try {
-    const response = await fs.readFile('../../public/assets/questions.json', {
+    const __dirname = import.meta.dirname;
+    const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions2.json');
+
+    const response = await fs.readFile(fullPath, {
       encoding: 'utf8',
     });
     const data: { categories: FileCategory[]; questions: FileQuestion[] } = JSON.parse(response);
@@ -109,6 +114,7 @@ async function constructBroadcastMessage(targetRoom: RoomData) {
     targetRoom.playerVotes.filter(vote => vote.questionId == targetRoom.currentQuestionId) || [];
 
   const broadcastMessage: StreamableRoomData = {
+    roomId: targetRoom.id,
     status: targetRoom.status,
     players: targetRoom.players,
     currentCategory: currCategory,
@@ -190,7 +196,7 @@ const RoomView: IRoomView = {
     };
     appState.rooms.push(newRoom);
 
-    await populateRoomContent(roomId);
+    if ((await populateRoomContent(roomId)) == false) return null;
 
     return roomId;
   },
@@ -229,7 +235,7 @@ const RoomView: IRoomView = {
   ): Promise<StreamableRoomData | null> {
     const targetRoom = await RoomView.getRoom(roomId);
     if (!targetRoom) return null;
-    if (targetRoom.status != 'waiting_for_players') return null;
+    // if (targetRoom.status != 'waiting_for_players') return null;
 
     const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId);
     if (targetPlayerIndex === -1) return null;

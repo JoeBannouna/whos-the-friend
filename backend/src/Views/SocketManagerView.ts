@@ -1,6 +1,5 @@
 import { Socket, type DefaultEventsMap, type Server } from 'socket.io';
 import RoomView, { type StreamableRoomData } from './RoomView.js';
-import { disconnect } from 'node:cluster';
 
 interface SocketStateData {
   sockets: {
@@ -30,13 +29,14 @@ async function removeSocket(playerId: string): Promise<boolean> {
 const SocketManagerView: ISocketManagerView = {
   async inializeSocketListeners(io): Promise<boolean> {
     io.on('connection', async socket => {
-      const playerName: string = socket.data.playerName;
-      const roomId: string = socket.data.roomId;
-      const roomPassword: string = socket.data.roomPassword;
-      let playerIdTemp: string | null = socket.data.playerId || null;
+      const playerName: string = socket.handshake.auth.playerName;
+      const roomId: string = socket.handshake.auth.roomId;
+      const roomPassword: string = socket.handshake.auth.roomPassword || '';
+      let playerIdTemp: string | null = socket.handshake.auth.playerId || null;
 
-      if ((await RoomView.getRoom(roomId)) === null) socket.disconnect();
-      else {
+      if ((await RoomView.getRoom(roomId)) === null) {
+        socket.disconnect();
+      } else {
         const emitToRoom = (gameState: StreamableRoomData | null) => {
           if (gameState !== null) io.to(roomId).emit('game_state', gameState);
           else console.log('error emitting to roomId:' + roomId);
@@ -44,44 +44,58 @@ const SocketManagerView: ISocketManagerView = {
 
         if (playerIdTemp === null) {
           playerIdTemp = await RoomView.addPlayer(roomId, playerName, roomPassword);
-          console.log('New player join!!');
         } else {
-          const reconnectionEvent = await RoomView.reconnectPlayer(roomId, playerIdTemp);
-          if (reconnectionEvent !== null) emitToRoom(reconnectionEvent);
-          else socket.disconnect();
-          console.log('Player reconnected!!');
+          console.log('playerId isnt null! reconnecting');
+          const playerExists = await RoomView.playerExists(roomId, playerIdTemp);
+          if (playerExists) {
+            const reconnectionEvent = await RoomView.reconnectPlayer(roomId, playerIdTemp);
+            if (reconnectionEvent !== null) emitToRoom(reconnectionEvent);
+            else socket.disconnect();
+          } else {
+            playerIdTemp = await RoomView.addPlayer(roomId, playerName, roomPassword);
+          }
         }
 
         const playerId = playerIdTemp; // must use const for typescript to be happy
-        if (playerId === null) socket.disconnect();
-        else {
+        if (playerId === null) {
+          socket.disconnect();
+        } else {
           const updatedGameState = await RoomView.getStreamableGameState(roomId);
 
           socket.join(roomId);
           emitToRoom(updatedGameState);
+          socket.emit('id_assignment', playerId);
 
           // socket.emit('request', /* … */); // emit an event to the socket
           // io.emit('broadcast', /* … */); // emit an event to all connected sockets
           // socket.on('reply', () => { /* … */ }); // listen to the event
-          socket.on('remove_player', arg1 => {
-            console.log(arg1);
-            console.log('Player left');
-
-            // removePlayer(roomId: string, playerId: string): Promise<StreamableRoomData | null>;
+          socket.on('remove_player', async () => {
+            const playerRemoveEvent = await RoomView.removePlayer(roomId, playerId);
+            emitToRoom(playerRemoveEvent);
+            socket.disconnect();
           });
-          // updatePlayerVoteForCurrentQuestion(
-          //   roomId: string,
-          //   voterId: string,
-          //   nomineeId: string
-          // ): Promise<StreamableRoomData | null>;
-          // startGame(roomId: string): Promise<StreamableRoomData | null>;
+          socket.on('start_game', async () => {
+            const startGameEvent = await RoomView.startGame(roomId);
+            emitToRoom(startGameEvent);
+          });
+          socket.on('next_step', async () => {
+            const nextEvent = await RoomView.next(roomId);
+            emitToRoom(nextEvent);
+          });
+          socket.on('player_vote', async (vote: StreamableRoomData['currentQuestionVotes'][0]) => {
+            const voteEvent = await RoomView.updatePlayerVoteForCurrentQuestion(
+              roomId,
+              vote.voterId,
+              vote.nomineeId
+            );
+            emitToRoom(voteEvent);
+          });
           // pauseGame(roomId: string): Promise<StreamableRoomData | null>;
           // resumeGame(roomId: string): Promise<StreamableRoomData | null>;
-          // next(roomId: string): Promise<StreamableRoomData | null>;
           socket.on('disconnect', async () => {
             const disconnectEvent = await RoomView.disconnectPlayer(roomId, playerId);
             emitToRoom(disconnectEvent);
-            console.log('Player left join!!');
+            console.log('Player disconnected!!');
           });
         }
       }

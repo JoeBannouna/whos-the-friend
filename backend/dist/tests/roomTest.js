@@ -47,7 +47,7 @@ let jsonQuestions = {
 };
 async function setQuestionsVariable() {
     try {
-        const response = await fs.readFile('../../public/assets/questions.json', {
+        const response = await fs.readFile('../../public/assets/questions2.json', {
             encoding: 'utf8',
         });
         const data = JSON.parse(response);
@@ -79,6 +79,7 @@ const mainRoomGameCycleTest = async () => {
     check(() => room.currentCategoryId === '');
     check(() => room.currentQuestionId === '');
     const expectedBroadcastMessage = {
+        roomId: roomId,
         status: 'waiting_for_players',
         players: [],
         gameResults: {
@@ -276,8 +277,8 @@ const mainRoomGameCycleTest = async () => {
     check(() => room.gameResults.categoryWinners.length === 1 &&
         room.gameResults.categoryWinners[0].winnerId === jayId);
     verifyObject(room.gameResults.currentPodium, [
-        { playerId: jayId, playerName: 'Jay', votes: 16 },
-        { playerId: jordanId, playerName: 'Jordan', votes: 8 },
+        { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
+        { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
         { playerId: johnId, playerName: 'John', votes: 0 },
     ]);
     assertDefined(acceptVotesResponse, 'acceptVotesResponse');
@@ -287,8 +288,8 @@ const mainRoomGameCycleTest = async () => {
         acceptVotesResponse.gameResults.categoryWinners.length === 1 &&
         acceptVotesResponse.gameResults.categoryWinners[0].winnerId === jayId);
     verifyObject(acceptVotesResponse.gameResults.currentPodium, [
-        { playerId: jayId, playerName: 'Jay', votes: 16 },
-        { playerId: jordanId, playerName: 'Jordan', votes: 8 },
+        { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
+        { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
         { playerId: johnId, playerName: 'John', votes: 0 },
     ]);
     const moveToNextCategory = await RoomView.next(roomId);

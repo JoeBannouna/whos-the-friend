@@ -51,6 +51,7 @@ type RoomData = {
     gamePaused: boolean;
 };
 export type StreamableRoomData = {
+    roomId: string;
     players: PlayerData[];
     currentCategory: CategoryData | null;
     currentQuestion: QuestionData | null;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { socket } from './socket';
 import './App.css';
+import { Link } from 'react-router';
 
 type Category = 'all' | 'trust' | 'personality' | 'wild' | 'skills' | 'life' | 'goals';
 type Question = { text: string; cat: Category; icon: string };
@@ -13,6 +13,8 @@ type RoomStatus =
   | 'announcing_game_winner'
   | 'game_finished';
 
+const hostname = '10.0.0.195';
+
 function RoomManager() {
   const [rooms, setRooms] = useState<
     { roomName: string; roomId: string; playersNumber: number; roomStatus: RoomStatus }[]
@@ -21,8 +23,10 @@ function RoomManager() {
   const [roomNameInput, setRoomNameInput] = useState<string>('');
   const [roomPassInput, setRoomPassInput] = useState<string>('');
 
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
   const fetchRooms = async () => {
-    const res = await fetch('http://localhost:5000/rooms');
+    const res = await fetch(`http://${hostname}:5000/rooms`);
     const data: any = await res.json();
     setRooms(data);
   };
@@ -32,9 +36,10 @@ function RoomManager() {
 
   const createRoomSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage('');
 
     const req = { roomName: roomNameInput, roomPass: roomPassInput };
-    const res = await fetch('http://localhost:5000/rooms/create', {
+    const res = await fetch(`http://${hostname}:5000/rooms/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,32 +52,45 @@ function RoomManager() {
       setRoomPassInput('');
       fetchRooms();
     } else {
+      const data = await res.json();
+      setErrorMessage(data.msg);
       console.log('Failed to create room :(');
     }
   };
 
   return (
-    <section>
+    <section className="p-4">
+      <h1 className="text-base font-bold">Rooms List</h1>
       <div>
         {rooms.map(r => (
-          <div className="p-4">
-            <div className="p-4 rounded bg-red-800/20 text-yellow-900">{r.roomName}</div>
+          <div className="py-4">
+            <Link
+              to={`/rooms/${r.roomId}`}
+              className="cursor-pointer p-4 block rounded-2xl bg-orange-500/30 text-yellow-900"
+            >
+              {r.roomName}
+            </Link>
           </div>
         ))}
       </div>
 
-      <form className="bg-cyan-700/10 p-2" onSubmit={createRoomSubmit}>
-        <div className="p-2">
+      <form className="bg-cyan-700/10 p-4 my-4 rounded-2xl" onSubmit={createRoomSubmit}>
+        {errorMessage == '' ? null : (
+          <div className="py-2">
+            <div className="p-4 bg-red-400 rounded-2xl">{errorMessage}</div>
+          </div>
+        )}
+        <div className="py-2">
           <input
-            className="rounded bg-white w-full p-4 outline-none"
+            className="rounded-2xl bg-white w-full p-4 outline-none"
             value={roomNameInput}
             onChange={e => setRoomNameInput(e.target.value)}
             placeholder="Room Name.."
           />
         </div>
-        <div className="p-2">
+        <div className="py-2">
           <input
-            className="rounded bg-white w-full p-4 outline-none"
+            className="rounded-2xl bg-white w-full p-4 outline-none"
             value={roomPassInput}
             onChange={e => setRoomPassInput(e.target.value)}
             placeholder="Room Pass.."
@@ -80,8 +98,10 @@ function RoomManager() {
           />
         </div>
 
-        <div className="p-2">
-          <button className="rounded cursor-pointer bg-blue-800/40 w-full p-4">Create Room</button>
+        <div className="py-2">
+          <button className="rounded-2xl cursor-pointer bg-blue-800/40 w-full p-4 outline-none">
+            Create Room
+          </button>
         </div>
       </form>
     </section>
@@ -106,35 +126,6 @@ function App() {
     })();
   }, []);
 
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
-
-  useEffect(() => {
-    socket.connect();
-    function onConnect() {
-      console.log('CONNECTED');
-      setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-    // function onFooEvent(value) {
-    //   setFooEvents(previous => [...previous, value]);
-    // }
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    // socket.on('foo', onFooEvent);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      // socket.off('foo', onFooEvent);
-    };
-  }, []);
-
   function highlightRandomQuestion() {
     const chosenQuestion = questions[Math.floor(Math.random() * questions.length)];
     setHighlightedQuestions([...highlightedQuestions, chosenQuestion.text]);
@@ -142,7 +133,6 @@ function App() {
 
   return (
     <>
-      <RoomManager />
       <header>
         <h1>
           Who in the group
@@ -152,6 +142,7 @@ function App() {
         <p className="subtitle">Pick a card. Point fingers. No take-backs.</p>
         <div className="divider"></div>
       </header>
+      <RoomManager />
       <div className="categories">
         {categories.map(c => (
           <button

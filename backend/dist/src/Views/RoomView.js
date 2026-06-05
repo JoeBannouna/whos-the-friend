@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 const appState = { rooms: [] };
 function makeRoomIdFromName(roomName) {
     return roomName.replaceAll(' ', '-').toLowerCase();
@@ -8,7 +9,9 @@ function randomPlayerId() {
 }
 async function populateRoomContent(roomId) {
     try {
-        const response = await fs.readFile('../../public/assets/questions.json', {
+        const __dirname = import.meta.dirname;
+        const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions2.json');
+        const response = await fs.readFile(fullPath, {
             encoding: 'utf8',
         });
         const data = JSON.parse(response);
@@ -39,6 +42,7 @@ async function constructBroadcastMessage(targetRoom) {
         : currCategory.questions.find(q => q.id == targetRoom.currentQuestionId) || null;
     const currQuestionVotes = targetRoom.playerVotes.filter(vote => vote.questionId == targetRoom.currentQuestionId) || [];
     const broadcastMessage = {
+        roomId: targetRoom.id,
         status: targetRoom.status,
         players: targetRoom.players,
         currentCategory: currCategory,
@@ -83,7 +87,8 @@ const RoomView = {
             gamePaused: false,
         };
         appState.rooms.push(newRoom);
-        await populateRoomContent(roomId);
+        if ((await populateRoomContent(roomId)) == false)
+            return null;
         return roomId;
     },
     getRoom: async function (roomId) {
@@ -116,8 +121,7 @@ const RoomView = {
         const targetRoom = await RoomView.getRoom(roomId);
         if (!targetRoom)
             return null;
-        if (targetRoom.status != 'waiting_for_players')
-            return null;
+        // if (targetRoom.status != 'waiting_for_players') return null;
         const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId);
         if (targetPlayerIndex === -1)
             return null;

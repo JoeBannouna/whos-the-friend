@@ -1,0 +1,174 @@
+
+<style>
+  h2.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0 }
+  .phone { width:280px;background:#FAF7F2;border-radius:28px;border:0.5px solid var(--color-border-secondary);overflow:hidden;font-family:var(--font-sans) }
+  .status-bar { background:#FAF7F2;padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#888 }
+  .screen { padding:0 16px 20px }
+  .tab-row { display:flex;gap:8px;margin-bottom:16px }
+  .tab { flex:1;text-align:center;padding:7px 0;border-radius:20px;font-size:12px;cursor:pointer;border:none;font-family:var(--font-sans) }
+  .tab.active { background:#3C3489;color:#fff;font-weight:500 }
+  .tab.inactive { background:#EAE6E0;color:#888 }
+  .section-label { font-size:10px;font-weight:500;color:#999;letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px }
+  .player-row { display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border-radius:12px;margin-bottom:6px;border:0.5px solid #E5E0D8 }
+  .avatar { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0 }
+  .av-pink { background:#F4C0D1;color:#72243E }
+  .av-blue { background:#B5D4F4;color:#0C447C }
+  .av-green { background:#C0DD97;color:#3B6D11 }
+  .av-amber { background:#FAC775;color:#633806 }
+  .av-teal { background:#9FE1CB;color:#085041 }
+  .dot-online { width:7px;height:7px;border-radius:50%;background:#22c55e;margin-left:auto }
+  .dot-waiting { width:7px;height:7px;border-radius:50%;background:#E5E0D8;margin-left:auto }
+  .btn-row { display:flex;gap:8px;margin-top:16px }
+  .btn { flex:1;padding:11px 0;border-radius:12px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:var(--font-sans) }
+  .btn-leave { background:#FCCACA;color:#A32D2D }
+  .btn-next { background:#16a34a;color:#fff }
+  .btn-start { background:#3C3489;color:#fff;width:100% }
+  .connected-tag { font-size:11px;color:#888;margin-top:10px;text-align:center }
+  .category-pill { display:inline-flex;align-items:center;gap:5px;background:#EEEDFE;color:#3C3489;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;margin-bottom:10px }
+  .question-card { background:#fff;border-radius:14px;border:0.5px solid #E5E0D8;padding:14px;margin-bottom:14px }
+  .question-text { font-size:14px;font-weight:500;color:#1a1a1a;line-height:1.4;margin:0 0 4px }
+  .question-sub { font-size:11px;color:#aaa;margin:0 }
+  .vote-row { display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff;border-radius:12px;margin-bottom:5px;border:0.5px solid #E5E0D8 }
+  .vote-name { font-size:13px;color:#1a1a1a;flex:1 }
+  .vote-avatars { display:flex;gap:-3px }
+  .mini-av { width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;margin-left:-4px;border:1.5px solid #FAF7F2 }
+  .vote-count { font-size:11px;color:#999;margin-left:4px }
+  .you-voted { font-size:10px;background:#EAF3DE;color:#3B6D11;padding:2px 7px;border-radius:8px }
+  .result-card { background:#fff;border-radius:14px;border:0.5px solid #E5E0D8;padding:14px;margin-bottom:10px }
+  .winner-row { display:flex;align-items:center;gap:10px;margin-bottom:10px }
+  .winner-av { width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;border:2px solid #FAC775 }
+  .trophy { font-size:18px }
+  .cat-tag { display:inline-block;font-size:10px;padding:3px 8px;border-radius:8px;font-weight:500;margin-bottom:6px }
+  .bar-wrap { margin-top:8px }
+  .bar-row { display:flex;align-items:center;gap:6px;margin-bottom:5px }
+  .bar-label { font-size:11px;color:#666;width:36px;flex-shrink:0 }
+  .bar-bg { flex:1;background:#EAE6E0;border-radius:4px;height:7px;overflow:hidden }
+  .bar-fill { height:100%;border-radius:4px }
+  .bar-num { font-size:10px;color:#999;width:16px;text-align:right }
+  .screens-row { display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;padding:16px 0 }
+  .screen-label { text-align:center;font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-top:8px;letter-spacing:.04em }
+  .header-area { padding:14px 16px 0;display:flex;flex-direction:column;align-items:center }
+  .header-dots { display:flex;gap:5px;margin-bottom:5px }
+  .header-dot { width:5px;height:5px;border-radius:50%;background:#3C3489;opacity:.4 }
+  .header-dot.on { opacity:1 }
+  .header-title { font-size:13px;font-weight:500;color:#3C3489;margin:0 0 14px }
+  .section-heading { font-size:15px;font-weight:500;color:#1a1a1a;margin:0 0 12px }
+  .you-label { font-size:10px;background:#EAE6E0;color:#666;padding:2px 6px;border-radius:6px;margin-left:auto }
+  .voted-check { margin-left:auto;width:18px;height:18px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:10px;color:#16a34a }
+  .pending-dot { margin-left:auto;width:7px;height:7px;border-radius:50%;background:#FAC775 }
+</style>
+
+<h2 class="sr-only">Voting game UI mockups showing three screens: lobby, voting, and results</h2>
+
+<div class="screens-row">
+
+  <div>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="header-area">
+        <div class="header-dots"><div class="header-dot on"></div><div class="header-dot"></div><div class="header-dot"></div></div>
+        <div class="header-title">Waiting for players…</div>
+      </div>
+      <div class="screen">
+        <p class="section-heading">Players</p>
+        <div class="player-row"><div class="avatar av-pink">LA</div><span style="font-size:13px">Lab</span><span class="you-label">you</span><div class="dot-online" style="margin-left:6px"></div></div>
+        <div class="player-row"><div class="avatar av-blue">JK</div><span style="font-size:13px">Jake</span><div class="dot-online"></div></div>
+        <div class="player-row"><div class="avatar av-green">SA</div><span style="font-size:13px">Sara</span><div class="dot-online"></div></div>
+        <div class="player-row"><div class="avatar av-amber">TM</div><span style="font-size:13px">Tom</span><div class="dot-waiting"></div></div>
+        <div class="btn-row">
+          <button class="btn btn-leave">Leave room</button>
+          <button class="btn btn-next">Start game</button>
+        </div>
+        <p class="connected-tag">3 of 4 players connected</p>
+      </div>
+    </div>
+    <div class="screen-label">Lobby</div>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="status-bar"><span>9:44</span><span>●●●</span></div>
+      <div class="header-area">
+        <div class="header-dots"><div class="header-dot on"></div><div class="header-dot on"></div><div class="header-dot"></div></div>
+        <div class="header-title">Voting…</div>
+      </div>
+      <div class="screen">
+        <div class="category-pill"><i class="ti ti-heart" aria-hidden="true" style="font-size:12px"></i> Trust · Q2 of 4</div>
+        <div class="question-card">
+          <p class="question-text">Who would you trust to babysit your kids?</p>
+          <p class="question-sub">Tap a player to vote</p>
+        </div>
+        <p class="section-label">Votes cast</p>
+        <div class="vote-row">
+          <div class="avatar av-pink" style="width:26px;height:26px;font-size:10px">LA</div>
+          <span class="vote-name">Lab</span>
+          <div class="vote-avatars">
+            <div class="mini-av av-blue">JK</div>
+            <div class="mini-av av-amber">TM</div>
+          </div>
+          <span class="vote-count">2</span>
+        </div>
+        <div class="vote-row">
+          <div class="avatar av-green" style="width:26px;height:26px;font-size:10px">SA</div>
+          <span class="vote-name">Sara</span>
+          <div class="vote-avatars">
+            <div class="mini-av av-teal">YO</div>
+          </div>
+          <span class="vote-count">1</span>
+        </div>
+        <div class="vote-row">
+          <div class="avatar av-blue" style="width:26px;height:26px;font-size:10px">JK</div>
+          <span class="vote-name">Jake</span>
+          <div style="margin-left:auto"><div class="pending-dot"></div></div>
+        </div>
+        <div class="vote-row">
+          <div class="avatar av-amber" style="width:26px;height:26px;font-size:10px">TM</div>
+          <span class="vote-name">Tom</span>
+          <div style="margin-left:auto"><div class="pending-dot"></div></div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-leave">Leave</button>
+          <button class="btn btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Voting screen</div>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="status-bar"><span>9:47</span><span>●●●</span></div>
+      <div class="header-area">
+        <div class="header-dots"><div class="header-dot on"></div><div class="header-dot on"></div><div class="header-dot on"></div></div>
+        <div class="header-title">Category results</div>
+      </div>
+      <div class="screen">
+        <div class="result-card">
+          <span class="cat-tag" style="background:#FAEEDA;color:#633806">🏆 Trust winner</span>
+          <div class="winner-row">
+            <div class="winner-av av-pink">LA</div>
+            <div>
+              <p style="font-size:15px;font-weight:500;margin:0;color:#1a1a1a">Lab</p>
+              <p style="font-size:11px;color:#888;margin:0">Most trusted · 3 votes</p>
+            </div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-row"><span class="bar-label" style="font-size:10px">Lab</span><div class="bar-bg"><div class="bar-fill" style="width:75%;background:#D4537E"></div></div><span class="bar-num">3</span></div>
+            <div class="bar-row"><span class="bar-label" style="font-size:10px">Sara</span><div class="bar-bg"><div class="bar-fill" style="width:25%;background:#D4537E;opacity:.4"></div></div><span class="bar-num">1</span></div>
+            <div class="bar-row"><span class="bar-label" style="font-size:10px">Jake</span><div class="bar-bg"><div class="bar-fill" style="width:0%;background:#D4537E;opacity:.4"></div></div><span class="bar-num">0</span></div>
+            <div class="bar-row"><span class="bar-label" style="font-size:10px">Tom</span><div class="bar-bg"><div class="bar-fill" style="width:0%;background:#D4537E;opacity:.4"></div></div><span class="bar-num">0</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:#fff;border-radius:12px;border:0.5px solid #E5E0D8;padding:10px;text-align:center">
+            <p style="font-size:10px;color:#888;margin:0 0 3px">Next category</p>
+            <p style="font-size:12px;font-weight:500;color:#1a1a1a;margin:0">Romance</p>
+          </div>
+          <button class="btn btn-next" style="flex:1;border-radius:12px;font-size:13px">Continue →</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Results screen</div>
+  </div>
+
+</div>

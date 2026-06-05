@@ -2,6 +2,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import SocketManagerView from './Views/SocketManagerView.js';
 import RoomView from './Views/RoomView.js';
+import RoomInputValidator from './Validators/RoomInputValidator.js';
 const app = express();
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,7 +11,7 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(express.static('public'));
-const server = app.listen(5000, () => console.log('Running...'));
+const server = app.listen(5000, '0.0.0.0', () => console.log('Running...'));
 const io = new Server(server, { cors: { origin: '*' } });
 // io.on('connection', socket => {
 //   console.log('A user connected.');
@@ -22,17 +23,21 @@ const io = new Server(server, { cors: { origin: '*' } });
 //   });
 // });
 await SocketManagerView.inializeSocketListeners(io);
-// app.use(else )
 app.use(express.json());
 app.get('/rooms', async (req, res) => {
     const response = await RoomView.getAllRooms();
     res.status(200).send(response);
 });
 app.post('/rooms/create', async (req, res) => {
-    const response = await RoomView.createRoom(req.body.roomName, req.body.roomPass);
-    if (response === null)
-        res.status(500).send();
-    else
-        res.status(200).send();
+    const validation = RoomInputValidator.createRoom(req.body.roomName, req.body.roomPass);
+    if (validation.success == false)
+        res.status(400).send({ msg: validation.msg });
+    else {
+        const response = await RoomView.createRoom(req.body.roomName, req.body.roomPass);
+        if (response === null)
+            res.status(500).send({ msg: 'failed to create a room' });
+        else
+            res.status(200).send();
+    }
 });
 //# sourceMappingURL=index.js.map
