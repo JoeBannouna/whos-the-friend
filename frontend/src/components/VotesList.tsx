@@ -53,7 +53,7 @@ function VotesList({
             style={{ opacity: props.opacity, y: props.y }}
           >
             <div className="flex items-center py-2 px-4">
-              <div className="pr-2">{p.playerName}</div>
+              <div className="pr-2 overflow-x-scroll w-20">{p.playerName}</div>
               <div className="flex bg-gray-200 w-full h-3 rounded-full mx-4 relative">
                 <animated.div
                   style={{ width: props.width }}

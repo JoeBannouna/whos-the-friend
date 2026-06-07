@@ -14,7 +14,7 @@ function WaitingForPlayers({
       {gameStateEvent.players.map(p => (
         <div className="py-1.5" key={p.id}>
           <div className="flex items-center bg-white border border-orange-700/15 py-3 px-4 rounded-2xl">
-            <PlayerPfp playerName={p.name} />
+            <PlayerPfp player={p} />
             <div className="px-4">{p.name}</div>
             <div className="flex items-center ml-auto">
               {localPlayerId == p.id ? (

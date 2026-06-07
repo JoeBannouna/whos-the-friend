@@ -6,7 +6,12 @@ type VoteData = {
   categoryId: string;
 };
 
-type PlayerData = { name: string; id: string; connected: boolean };
+export type PlayerData = {
+  name: string;
+  id: string;
+  connected: boolean;
+  color: { bg: string; text: string };
+};
 type QuestionData = { id: string; text: string; icon: string };
 type CategoryData = { id: string; name: string; questions: QuestionData[] };
 type RoomStatus =

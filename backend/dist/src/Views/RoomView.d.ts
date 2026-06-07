@@ -4,10 +4,18 @@ type VoteData = {
     questionId: string;
     categoryId: string;
 };
+declare const bgColors: readonly ["#2caeb7", "#23b253", "#aac92c", "#c6a52b", "#ce6d2d", "#d62f2f", "#316be0", "#8b31d6", "#c932ba"];
+declare const textColors: readonly ["#0f3e42", "#0c351a", "#363f0f", "#4f4112", "#442510", "#420f0f", "#14284f", "#311449", "#3d1038"];
+export declare const colors: {
+    bg: (typeof bgColors)[number];
+    text: (typeof textColors)[number];
+}[];
+type Color = (typeof colors)[number];
 type PlayerData = {
     name: string;
     id: string;
     connected: boolean;
+    color: Color;
 };
 type QuestionData = {
     id: string;
@@ -30,7 +38,7 @@ type GameResultsData = {
         questionId: string;
         winnerId: string;
     }[];
-    currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot];
+    currentPodium: PodiumSpot[];
     categoryWinners: {
         categoryId: string;
         winnerId: string;

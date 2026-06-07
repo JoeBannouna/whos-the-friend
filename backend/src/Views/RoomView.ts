@@ -9,7 +9,67 @@ type VoteData = {
   categoryId: string;
 };
 
-type PlayerData = { name: string; id: string; connected: boolean };
+const bgColors = [
+  '#2caeb7',
+  '#23b253',
+  '#aac92c',
+  '#c6a52b',
+  '#ce6d2d',
+  '#d62f2f',
+  '#316be0',
+  '#8b31d6',
+  '#c932ba',
+] as const;
+const textColors = [
+  '#0f3e42',
+  '#0c351a',
+  '#363f0f',
+  '#4f4112',
+  '#442510',
+  '#420f0f',
+  '#14284f',
+  '#311449',
+  '#3d1038',
+] as const;
+
+export const colors = bgColors.map((bgColor, i) => ({ bg: bgColor, text: textColors[i] })) as {
+  bg: (typeof bgColors)[number];
+  text: (typeof textColors)[number];
+}[];
+
+type Color = (typeof colors)[number];
+
+const colorsPool = bgColors.map((bgColor, i) => ({
+  bg: bgColor,
+  text: textColors[i],
+  used: false,
+})) as {
+  bg: (typeof bgColors)[number];
+  text: (typeof textColors)[number];
+  used: boolean;
+}[];
+
+function selectUnusedColor(): Color | null {
+  const unusedColorIndex = colorsPool.findIndex(c => c.used == false);
+
+  if (unusedColorIndex == -1 || colorsPool[unusedColorIndex] == undefined) return null;
+  else {
+    colorsPool[unusedColorIndex].used = true;
+    return { bg: colorsPool[unusedColorIndex].bg, text: colorsPool[unusedColorIndex].text };
+  }
+}
+
+function deselectUnusedColor(bgColor: (typeof bgColors)[number]): boolean {
+  const unusedColorIndex = colorsPool.findIndex(c => c.bg == bgColor);
+
+  if (unusedColorIndex == -1 || colorsPool[unusedColorIndex] == undefined) return false;
+  else {
+    colorsPool[unusedColorIndex].used = false;
+    return true;
+  }
+}
+
+type PlayerData = { name: string; id: string; connected: boolean; color: Color };
 type QuestionData = { id: string; text: string; icon: string };
 type CategoryData = { id: string; name: string; questions: QuestionData[] };
 type RoomStatus =
@@ -24,7 +84,7 @@ type PodiumSpot = { playerId: string; playerName: string; votes: number };
 
 type GameResultsData = {
   questionWinners: { questionId: string; winnerId: string }[];
-  currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot];
+  currentPodium: PodiumSpot[];
   categoryWinners: { categoryId: string; winnerId: string }[];
   gameWinnerId: string | null;
 };
@@ -210,14 +270,18 @@ const RoomView: IRoomView = {
   ): Promise<string | null> {
     const targetRoom = await RoomView.getRoom(roomId);
     if (!targetRoom) return null;
-    if (targetRoom.status != 'waiting_for_players') return null;
+    // if (targetRoom.status != 'waiting_for_players') return null;
     if (targetRoom.password != roomPasswordAttempt) return null;
+
+    const playerColor = selectUnusedColor();
+    if (playerColor == null) return null;
 
     const playerId = randomPlayerId();
     const newPlayer: PlayerData = {
       name: playerName,
       id: playerId,
       connected: true,
+      color: playerColor,
     };
     targetRoom.players.push(newPlayer);
 
@@ -240,6 +304,7 @@ const RoomView: IRoomView = {
     const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId);
     if (targetPlayerIndex === -1) return null;
 
+    deselectUnusedColor(targetRoom.players[targetPlayerIndex]!.color.bg);
     targetRoom.players.splice(targetPlayerIndex, 1);
 
     return constructBroadcastMessage(targetRoom);
@@ -335,7 +400,7 @@ const RoomView: IRoomView = {
         questionId: targetRoom.currentQuestionId,
       });
 
-      targetRoom.gameResults.currentPodium = [podium[0]!, podium[1]!, podium[2]!];
+      targetRoom.gameResults.currentPodium = podium;
     };
 
     const updateCategoryWinners = () => {
@@ -355,16 +420,23 @@ const RoomView: IRoomView = {
         categoryId: targetRoom.currentCategoryId,
       });
 
-      targetRoom.gameResults.currentPodium = [podium[0]!, podium[1]!, podium[2]!];
+      targetRoom.gameResults.currentPodium = podium;
     };
 
     const updateGameWinner = () => {
-      targetRoom.gameResults.gameWinnerId = targetRoom.players
+      const podium: PodiumSpot[] = targetRoom.players
         .map(p => ({
           playerId: p.id,
-          votes: targetRoom.playerVotes.filter(vote => vote.nomineeId == p.id).length,
+          playerName: p.name,
+          votes: targetRoom.playerVotes.filter(vote => {
+            return vote.nomineeId == p.id;
+          }).length,
         }))
-        .sort((p1, p2) => p2.votes - p1.votes)[0]!.playerId;
+        .sort((p1, p2) => p2.votes - p1.votes);
+
+      targetRoom.gameResults.gameWinnerId = podium[0]!.playerId;
+
+      targetRoom.gameResults.currentPodium = podium;
     };
 
     let nextQuestionInCurrCategoryExists;

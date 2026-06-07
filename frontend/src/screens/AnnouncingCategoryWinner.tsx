@@ -47,7 +47,11 @@ function AnnouncingCategoryWinner({ gameStateEvent }: { gameStateEvent: Streamab
             <div className="flex">
               <PlayerPfp
                 mode="big"
-                playerName={gameStateEvent.gameResults.currentPodium[0].playerName}
+                player={
+                  gameStateEvent.players.find(
+                    p => p.id == gameStateEvent.gameResults.currentPodium[0].playerId
+                  )!
+                }
                 anim={scale}
               />
               <animated.div className="pt-6 pl-6" style={fade}>

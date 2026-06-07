@@ -72,7 +72,7 @@ function AcceptingVotes({
               }
             }}
           >
-            <PlayerPfp playerName={p.name} />
+            <PlayerPfp player={p} />
             <div className="px-4">{p.name}</div>
             <div className="flex items-center ml-auto">
               <div className="pr-3 flex">
@@ -84,7 +84,7 @@ function AcceptingVotes({
                     if (!voterPlayer) return <div>Error</div>;
                     return (
                       <div key={v.voterId} className="w-6">
-                        <PlayerPfp mode="small" playerName={voterPlayer.name} />
+                        <PlayerPfp mode="small" player={voterPlayer} />
                       </div>
                     );
                   })}

@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { exit } from 'node:process';
-import RoomView, { type StreamableRoomData } from '../src/Views/RoomView.js';
+import RoomView, { colors, type StreamableRoomData } from '../src/Views/RoomView.js';
 import { strict as assert } from 'node:assert';
 
 let haltTestOnFail = true;
@@ -124,11 +124,11 @@ const mainRoomGameCycleTest = async () => {
     addedPlayerId = await RoomView.addPlayer(roomId, playerName, roomPass);
 
   expectedBroadcastMessage.players = [
-    { name: 'John', id: room.players[0]!.id, connected: true },
-    { name: 'Jay', id: room.players[1]!.id, connected: true },
-    { name: 'Jimmy', id: room.players[2]!.id, connected: true },
-    { name: 'Jordan', id: room.players[3]!.id, connected: true },
-    { name: 'Jimbo', id: room.players[4]!.id, connected: true },
+    { name: 'John', id: room.players[0]!.id, connected: true, color: colors[0]! },
+    { name: 'Jay', id: room.players[1]!.id, connected: true, color: colors[1]! },
+    { name: 'Jimmy', id: room.players[2]!.id, connected: true, color: colors[2]! },
+    { name: 'Jordan', id: room.players[3]!.id, connected: true, color: colors[3]! },
+    { name: 'Jimbo', id: room.players[4]!.id, connected: true, color: colors[4]! },
   ];
 
   check(() => room.players.length === players.length);
@@ -283,6 +283,7 @@ const mainRoomGameCycleTest = async () => {
     { playerId: jayId, playerName: 'Jay', votes: 2 },
     { playerId: jordanId, playerName: 'Jordan', votes: 1 },
     { playerId: johnId, playerName: 'John', votes: 0 },
+    { playerId: jimmyId, playerName: 'Jimmy', votes: 0 },
   ];
   verifyObject(nextResponse, expectedBroadcastMessage);
 
@@ -343,6 +344,7 @@ const mainRoomGameCycleTest = async () => {
     { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
     { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
     { playerId: johnId, playerName: 'John', votes: 0 },
+    { playerId: jimmyId, playerName: 'Jimmy', votes: 0 },
   ]);
 
   assertDefined(acceptVotesResponse, 'acceptVotesResponse');
@@ -358,6 +360,7 @@ const mainRoomGameCycleTest = async () => {
     { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
     { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
     { playerId: johnId, playerName: 'John', votes: 0 },
+    { playerId: jimmyId, playerName: 'Jimmy', votes: 0 },
   ]);
 
   const moveToNextCategory = await RoomView.next(roomId);
@@ -412,6 +415,16 @@ const mainRoomGameCycleTest = async () => {
   check(
     () => announceGameWinner.gameResults.categoryWinners.length === jsonQuestions.categories.length
   );
+  // TODO: There should be a test here that verifies that the game winners podium is correct here
+  // ... currently there is a block of code that is copy pasted from a previous section
+  // ... that tests the category winners podium. It should be adapted to a game winners podium
+  //
+  // verifyObject(acceptVotesResponse.gameResults.currentPodium, [
+  //   { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
+  //   { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
+  //   { playerId: johnId, playerName: 'John', votes: 0 },
+  //   { playerId: jimmyId, playerName: 'Jimmy', votes: 0 },
+  // ]);
 
   const finishingGame = await RoomView.next(roomId);
   assertDefined(finishingGame, 'finishingGame');

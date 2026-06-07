@@ -59,7 +59,7 @@ function AnnouncingQuestionWinner({ gameStateEvent }: { gameStateEvent: Streamab
               <div className="text-3xl pr-3">
                 {index == 0 ? '🥇' : index == 1 ? '🥈' : index == 2 ? '🥉' : null}
               </div>
-              <PlayerPfp playerName={podiumSlot.playerName} />
+              <PlayerPfp player={gameStateEvent.players.find(p => p.id == podiumSlot.playerId)!} />
               <div className="px-4">{podiumSlot.playerName}</div>
               <div className="flex items-center ml-auto">
                 <div className="">

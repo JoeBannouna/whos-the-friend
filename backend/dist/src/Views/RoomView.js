@@ -1,5 +1,51 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+const bgColors = [
+    '#2caeb7',
+    '#23b253',
+    '#aac92c',
+    '#c6a52b',
+    '#ce6d2d',
+    '#d62f2f',
+    '#316be0',
+    '#8b31d6',
+    '#c932ba',
+];
+const textColors = [
+    '#0f3e42',
+    '#0c351a',
+    '#363f0f',
+    '#4f4112',
+    '#442510',
+    '#420f0f',
+    '#14284f',
+    '#311449',
+    '#3d1038',
+];
+export const colors = bgColors.map((bgColor, i) => ({ bg: bgColor, text: textColors[i] }));
+const colorsPool = bgColors.map((bgColor, i) => ({
+    bg: bgColor,
+    text: textColors[i],
+    used: false,
+}));
+function selectUnusedColor() {
+    const unusedColorIndex = colorsPool.findIndex(c => c.used == false);
+    if (unusedColorIndex == -1 || colorsPool[unusedColorIndex] == undefined)
+        return null;
+    else {
+        colorsPool[unusedColorIndex].used = true;
+        return { bg: colorsPool[unusedColorIndex].bg, text: colorsPool[unusedColorIndex].text };
+    }
+}
+function deselectUnusedColor(bgColor) {
+    const unusedColorIndex = colorsPool.findIndex(c => c.bg == bgColor);
+    if (unusedColorIndex == -1 || colorsPool[unusedColorIndex] == undefined)
+        return false;
+    else {
+        colorsPool[unusedColorIndex].used = false;
+        return true;
+    }
+}
 const appState = { rooms: [] };
 function makeRoomIdFromName(roomName) {
     return roomName.replaceAll(' ', '-').toLowerCase();
@@ -98,15 +144,18 @@ const RoomView = {
         const targetRoom = await RoomView.getRoom(roomId);
         if (!targetRoom)
             return null;
-        if (targetRoom.status != 'waiting_for_players')
-            return null;
+        // if (targetRoom.status != 'waiting_for_players') return null;
         if (targetRoom.password != roomPasswordAttempt)
+            return null;
+        const playerColor = selectUnusedColor();
+        if (playerColor == null)
             return null;
         const playerId = randomPlayerId();
         const newPlayer = {
             name: playerName,
             id: playerId,
             connected: true,
+            color: playerColor,
         };
         targetRoom.players.push(newPlayer);
         return playerId;
@@ -125,6 +174,7 @@ const RoomView = {
         const targetPlayerIndex = targetRoom.players.findIndex(p => p.id == playerId);
         if (targetPlayerIndex === -1)
             return null;
+        deselectUnusedColor(targetRoom.players[targetPlayerIndex].color.bg);
         targetRoom.players.splice(targetPlayerIndex, 1);
         return constructBroadcastMessage(targetRoom);
     },
@@ -204,7 +254,7 @@ const RoomView = {
                 winnerId: winnerId,
                 questionId: targetRoom.currentQuestionId,
             });
-            targetRoom.gameResults.currentPodium = [podium[0], podium[1], podium[2]];
+            targetRoom.gameResults.currentPodium = podium;
         };
         const updateCategoryWinners = () => {
             const podium = targetRoom.players
@@ -221,15 +271,20 @@ const RoomView = {
                 winnerId: winnerId,
                 categoryId: targetRoom.currentCategoryId,
             });
-            targetRoom.gameResults.currentPodium = [podium[0], podium[1], podium[2]];
+            targetRoom.gameResults.currentPodium = podium;
         };
         const updateGameWinner = () => {
-            targetRoom.gameResults.gameWinnerId = targetRoom.players
+            const podium = targetRoom.players
                 .map(p => ({
                 playerId: p.id,
-                votes: targetRoom.playerVotes.filter(vote => vote.nomineeId == p.id).length,
+                playerName: p.name,
+                votes: targetRoom.playerVotes.filter(vote => {
+                    return vote.nomineeId == p.id;
+                }).length,
             }))
-                .sort((p1, p2) => p2.votes - p1.votes)[0].playerId;
+                .sort((p1, p2) => p2.votes - p1.votes);
+            targetRoom.gameResults.gameWinnerId = podium[0].playerId;
+            targetRoom.gameResults.currentPodium = podium;
         };
         let nextQuestionInCurrCategoryExists;
         let nextCategoryExists;

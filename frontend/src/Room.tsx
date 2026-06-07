@@ -75,7 +75,7 @@ function Room() {
   }, []);
 
   return (
-    <>
+    <div className="md:max-w-150 mx-auto">
       {gameStateEvent === null || !isConnected ? (
         <>
           <h1 className="text-center py-4">{roomIdString}</h1>
@@ -113,7 +113,7 @@ function Room() {
       ) : (
         <GameScreen gameStateEvent={gameStateEvent} />
       )}
-    </>
+    </div>
   );
 }
 

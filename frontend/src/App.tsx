@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Link } from 'react-router';
 
-type Category = 'all' | 'trust' | 'personality' | 'wild' | 'skills' | 'life' | 'goals';
-type Question = { text: string; cat: Category; icon: string };
-
 type RoomStatus =
   | 'waiting_for_players'
   | 'accepting_votes'
@@ -13,9 +10,9 @@ type RoomStatus =
   | 'announcing_game_winner'
   | 'game_finished';
 
-const hostname = '10.0.0.195';
+const hostname = import.meta.env.VITE_BACKEND_ORIGIN;
 
-function RoomManager() {
+function App() {
   const [rooms, setRooms] = useState<
     { roomName: string; roomId: string; playersNumber: number; roomStatus: RoomStatus }[]
   >([]);
@@ -26,7 +23,7 @@ function RoomManager() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const fetchRooms = async () => {
-    const res = await fetch(`http://${hostname}:5000/rooms`);
+    const res = await fetch(`${hostname}/rooms`);
     const data: any = await res.json();
     setRooms(data);
   };
@@ -39,7 +36,7 @@ function RoomManager() {
     setErrorMessage('');
 
     const req = { roomName: roomNameInput, roomPass: roomPassInput };
-    const res = await fetch(`http://${hostname}:5000/rooms/create`, {
+    const res = await fetch(`${hostname}/rooms/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +56,7 @@ function RoomManager() {
   };
 
   return (
-    <section className="p-4">
+    <section className="p-4 md:max-w-150 mx-auto">
       <h1 className="text-base font-bold">Rooms List</h1>
       <div>
         {rooms.map(r => (
@@ -105,87 +102,6 @@ function RoomManager() {
         </div>
       </form>
     </section>
-  );
-}
-
-function App() {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [highlightedQuestions, setHighlightedQuestions] = useState<string[]>([]);
-
-  const [categories, setCategories] = useState<{ name: string; id: Category }[]>([]);
-
-  const [activeCategory, setActiveCategory] = useState<Category>('all');
-
-  useEffect(() => {
-    (async () => {
-      const res = await fetch('http://localhost:5000/assets/questions.json');
-      const data: any = await res.json();
-      setQuestions(data.questions);
-      setCategories(data.categories);
-      console.log(data);
-    })();
-  }, []);
-
-  function highlightRandomQuestion() {
-    const chosenQuestion = questions[Math.floor(Math.random() * questions.length)];
-    setHighlightedQuestions([...highlightedQuestions, chosenQuestion.text]);
-  }
-
-  return (
-    <>
-      <header>
-        <h1>
-          Who in the group
-          <br />
-          <em>would most likely…</em>
-        </h1>
-        <p className="subtitle">Pick a card. Point fingers. No take-backs.</p>
-        <div className="divider"></div>
-      </header>
-      <RoomManager />
-      <div className="categories">
-        {categories.map(c => (
-          <button
-            key={c.id}
-            className={`cat-btn ${activeCategory == c.id ? 'active' : ''}`}
-            onClick={() => setActiveCategory(c.id)}
-          >
-            {c.name}
-          </button>
-        ))}
-      </div>
-      <div className="count-badge" id="count-badge">
-        {questions.filter(q => q.cat == activeCategory || activeCategory == 'all').length} questions
-      </div>
-      <div className="questions-grid" id="questions-grid">
-        {questions
-          .filter(q => q.cat == activeCategory || activeCategory == 'all')
-          .map((q, index) => {
-            return (
-              <div
-                key={q.text}
-                className={`question-card ${highlightedQuestions.includes(q.text) ? 'highlighted' : ''}`}
-                id={`card-${index}`}
-                onClick={() => {
-                  if (highlightedQuestions.includes(q.text)) {
-                    setHighlightedQuestions(highlightedQuestions.filter(text => text != q.text));
-                  } else setHighlightedQuestions([...highlightedQuestions, q.text]);
-                }}
-              >
-                <span className="q-num">{String(index + 1).padStart(2, '0')}</span>
-                <div className="q-content">
-                  <div className="q-category">{categories.find(c => c.id == q.cat)?.name}</div>
-                  <div className="q-text">{q.text}</div>
-                </div>
-                <span className="q-icon">{q.icon}</span>
-              </div>
-            );
-          })}
-      </div>
-      <button className="random-btn" onClick={highlightRandomQuestion}>
-        🎲 Highlight a random one
-      </button>
-    </>
   );
 }
 

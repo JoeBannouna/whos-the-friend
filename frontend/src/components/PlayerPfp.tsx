@@ -1,14 +1,17 @@
 import { animated } from '@react-spring/web';
+import type { PlayerData } from '../types';
 
 function PlayerPfp({
-  playerName,
+  player,
   mode = 'normal',
   anim = undefined,
 }: {
-  playerName: string;
+  player: PlayerData;
   mode?: 'small' | 'normal' | 'big';
   anim?: any;
 }) {
+  const playerName = player.name;
+
   if (playerName.length > 0) {
     const names = playerName.split(' ');
     const name =
@@ -38,10 +41,15 @@ function PlayerPfp({
         break;
     }
 
+    let customStyles = anim;
+    if (player.color)
+      customStyles = { ...anim, backgroundColor: player.color.bg, color: player.color.text };
+    const backupPlayerTheme = player.color ? '' : 'bg-gray-400 text-gray-800';
+
     return (
       <animated.div
-        className={`rounded-full relative bg-gray-400 text-gray-800 flex justify-center items-center font-medium ${styles}`}
-        style={anim}
+        className={`rounded-full relative ${backupPlayerTheme} flex justify-center items-center font-medium ${styles}`}
+        style={customStyles}
       >
         {name.toLocaleUpperCase()}
         {mode == 'big' ? <div className="absolute top-0 -right-1/5">🏆</div> : null}

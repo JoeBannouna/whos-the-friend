@@ -76,7 +76,11 @@ function AnnouncingGameWinner({ gameStateEvent }: { gameStateEvent: StreamableRo
                 <animated.div className={`relative`} style={mainProf}>
                   <PlayerPfp
                     mode="big"
-                    playerName={gameStateEvent.gameResults.currentPodium[0].playerName}
+                    player={
+                      gameStateEvent.players.find(
+                        p => p.id == gameStateEvent.gameResults.currentPodium[0].playerId
+                      )!
+                    }
                     // anim={}
                   />
                 </animated.div>
