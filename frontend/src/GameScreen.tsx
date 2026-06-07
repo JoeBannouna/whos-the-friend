@@ -134,6 +134,14 @@ function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) 
         {gameStateEvent.players.filter(p => p.connected).length} of {gameStateEvent.players.length}{' '}
         players connected
       </div>
+      <div className="pb-4 pt-16 font-semibold">
+        <button
+          className={`rounded-2xl cursor-pointer bg-yellow-500/40 text-yellow-900 w-full p-4 outline-none`}
+          onClick={() => navigate('/')}
+        >
+          Back to all rooms
+        </button>
+      </div>
     </>
   );
 }

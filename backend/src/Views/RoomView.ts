@@ -109,6 +109,21 @@ type RoomData = {
   gamePaused: boolean;
 };
 
+async function saveGameResultsToJsonFile(room: RoomData) {
+  const __dirname = import.meta.dirname;
+  const fullPath = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'public',
+    'assets',
+    'games',
+    `${room.id}.json`
+  );
+  await fs.writeFile(fullPath, JSON.stringify(room.gameResults), { encoding: 'utf8' });
+}
+
 type AppStateData = {
   rooms: RoomData[];
 };
@@ -536,7 +551,7 @@ const RoomView: IRoomView = {
         break;
 
       case 'game_finished':
-        // nothing to do?
+        await saveGameResultsToJsonFile(targetRoom);
         break;
 
       default:

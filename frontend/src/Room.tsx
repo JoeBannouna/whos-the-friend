@@ -5,6 +5,8 @@ import type { StreamableRoomData } from './types';
 import GameScreen from './GameScreen';
 import CachedRoomStorage from './CachedRoomStorage';
 
+const hostname = import.meta.env.VITE_BACKEND_ORIGIN;
+
 function Room() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [gameStateEvent, setGameStateEvent] = useState<StreamableRoomData | null>(null);
@@ -17,6 +19,26 @@ function Room() {
     return;
   }
   const roomIdString = roomId; // typescript fuckery
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(`${hostname}/rooms/check/${roomIdString}`);
+      if (!res.ok) navigate('/');
+      return;
+    })();
+  }, []);
+
+  const [existingPlayer, setExistingPlayer] = useState<boolean>(false);
+  useEffect(() => {
+    (async () => {
+      const existingPlayerId = await CachedRoomStorage.getCachedPlayerIdForRoom(roomIdString);
+      if (existingPlayerId) {
+        const res = await fetch(`${hostname}/rooms/player/${roomIdString}/${existingPlayerId}`);
+        if (res.ok) setExistingPlayer(true);
+        return;
+      }
+    })();
+  }, []);
 
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -85,14 +107,16 @@ function Room() {
                 <div className="p-4 bg-red-400 rounded-2xl">{errorMessage}</div>
               </div>
             )}
-            <div className="py-2">
-              <input
-                className="rounded-2xl bg-white w-full p-4 outline-none"
-                value={playerNameInput}
-                onChange={e => setPlayerNameInput(e.target.value)}
-                placeholder="Your Name.. (Firstname Lastname)"
-              />
-            </div>
+            {existingPlayer ? null : (
+              <div className="py-2">
+                <input
+                  className="rounded-2xl bg-white w-full p-4 outline-none"
+                  value={playerNameInput}
+                  onChange={e => setPlayerNameInput(e.target.value)}
+                  placeholder="Your Name.. (Firstname Lastname)"
+                />
+              </div>
+            )}
             <div className="py-2">
               <input
                 className="rounded-2xl bg-white w-full p-4 outline-none"
@@ -104,8 +128,10 @@ function Room() {
             </div>
 
             <div className="py-2">
-              <button className="rounded-2xl cursor-pointer bg-blue-800/40 w-full p-4 outline-none">
-                Enter Room
+              <button
+                className={`rounded-2xl cursor-pointer ${existingPlayer ? 'bg-yellow-500/40' : 'bg-blue-800/40'} w-full p-4 outline-none`}
+              >
+                {existingPlayer ? 'Rejoin' : 'Enter Room'}
               </button>
             </div>
           </form>

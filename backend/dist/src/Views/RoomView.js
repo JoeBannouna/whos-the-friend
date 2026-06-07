@@ -46,6 +46,11 @@ function deselectUnusedColor(bgColor) {
         return true;
     }
 }
+async function saveGameResultsToJsonFile(room) {
+    const __dirname = import.meta.dirname;
+    const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'games', `${room.id}.json`);
+    await fs.writeFile(fullPath, JSON.stringify(room.gameResults), { encoding: 'utf8' });
+}
 const appState = { rooms: [] };
 function makeRoomIdFromName(roomName) {
     return roomName.replaceAll(' ', '-').toLowerCase();
@@ -367,7 +372,7 @@ const RoomView = {
                 targetRoom.status = 'game_finished';
                 break;
             case 'game_finished':
-                // nothing to do?
+                await saveGameResultsToJsonFile(targetRoom);
                 break;
             default:
                 break;

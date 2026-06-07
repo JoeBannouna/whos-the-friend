@@ -18,22 +18,22 @@ app.use(express.static('public'));
 const server = app.listen(5000, '0.0.0.0', () => console.log('Running...'));
 const io = new Server(server, { cors: { origin: '*' } });
 
-// io.on('connection', socket => {
-//   console.log('A user connected.');
-//   // socket.emit('request', /* … */); // emit an event to the socket
-//   // io.emit('broadcast', /* … */); // emit an event to all connected sockets
-//   // socket.on('reply', () => { /* … */ }); // listen to the event
-//   socket.on('disconnect', () => {
-//     console.log('A user disconnected');
-//   });
-// });
-
 await SocketManagerView.inializeSocketListeners(io);
 
 app.use(express.json());
 app.get('/rooms', async (req, res) => {
   const response = await RoomView.getAllRooms();
   res.status(200).send(response);
+});
+app.get('/rooms/check/:roomId', async (req, res) => {
+  const response = await RoomView.getRoom(req.params.roomId);
+  if (response == null) res.status(404).send();
+  else res.status(200);
+});
+app.get('/rooms/player/:roomId/:playerId', async (req, res) => {
+  const response = await RoomView.playerExists(req.params.roomId as string, req.params.playerId);
+  if (response == false) res.status(400).send();
+  else res.status(200).send();
 });
 app.post('/rooms/create', async (req, res) => {
   const validation = RoomInputValidator.createRoom(req.body.roomName, req.body.roomPass);
