@@ -10,16 +10,13 @@ import AnnouncingQuestionWinner from './screens/AnnouncingQuestionWinner.tsx';
 import AnnouncingCategoryWinner from './screens/AnnouncingCategoryWinner.tsx';
 import AnnouncingGameWinner from './screens/AnnouncingGameWinner.tsx';
 
-function MainGameSection({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) {
-  const [localPlayerId, setLocalPlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const playerId = await CachedRoomStorage.getCachedPlayerIdForRoom(gameStateEvent.roomId);
-      setLocalPlayerId(playerId);
-    })();
-  }, [gameStateEvent]);
-
+function MainGameSection({
+  gameStateEvent,
+  localPlayerId,
+}: {
+  gameStateEvent: StreamableRoomData;
+  localPlayerId: string | null;
+}) {
   if (gameStateEvent.status == 'waiting_for_players')
     return <WaitingForPlayers gameStateEvent={gameStateEvent} localPlayerId={localPlayerId} />;
 
@@ -38,6 +35,15 @@ function MainGameSection({ gameStateEvent }: { gameStateEvent: StreamableRoomDat
 
 function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) {
   const navigate = useNavigate();
+
+  const [localPlayerId, setLocalPlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const playerId = await CachedRoomStorage.getCachedPlayerIdForRoom(gameStateEvent.roomId);
+      setLocalPlayerId(playerId);
+    })();
+  }, [gameStateEvent]);
 
   let headerStatus: string = 'Loading...';
 
@@ -65,8 +71,12 @@ function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) 
   const playersWhoVoted = gameStateEvent.players.filter(p =>
     gameStateEvent.currentQuestionVotes.map(v => v.voterId).includes(p.id)
   );
+
   const allConnectedPlayersVoted =
     playersWhoVoted.length >= gameStateEvent.players.filter(p => p.connected).length;
+
+  const currentPlayer = gameStateEvent.players.find(p => p.id == localPlayerId);
+  if (currentPlayer == undefined) return <div>Something terribly wrong happened</div>;
 
   return (
     <>
@@ -81,41 +91,44 @@ function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) 
         </div>
       </header>
 
-      <MainGameSection gameStateEvent={gameStateEvent} />
+      <MainGameSection gameStateEvent={gameStateEvent} localPlayerId={localPlayerId} />
       <div className="flex py-4">
-        <div className="flex w-full pr-2">
-          <button
-            className="rounded-2xl bg-red-400/50 text-red-700 font-semibold p-4 cursor-pointer w-full"
-            onClick={() => {
-              socket.emit('remove_player');
-              navigate('/');
-            }}
-          >
-            Leave room
-          </button>
-        </div>
-        <div className="flex w-full pl-2">
-          {gameStateEvent.status == 'waiting_for_players' ? (
-            <button
-              className="rounded-2xl bg-green-600 text-white font-semibold p-4 cursor-pointer w-full"
-              onClick={() => {
-                socket.emit('start_game');
-              }}
-            >
-              Start Game
-            </button>
-          ) : (
-            <button
-              className="rounded-2xl bg-green-600 text-white p-4 cursor-pointer w-full disabled:opacity-60 disabled:cursor-default"
-              disabled={gameStateEvent.status == 'accepting_votes' && !allConnectedPlayersVoted}
-              onClick={() => {
-                socket.emit('next_step');
-              }}
-            >
-              Next
-            </button>
-          )}
-        </div>
+        {/* No way to leave the room as of right now */}
+        {/* <div className="flex w-full pr-2"> */}
+        {/*   <button */}
+        {/*     className="rounded-2xl bg-red-400/50 text-red-700 font-semibold p-4 cursor-pointer w-full" */}
+        {/*     onClick={() => { */}
+        {/*       socket.emit('remove_player'); */}
+        {/*       navigate('/'); */}
+        {/*     }} */}
+        {/*   > */}
+        {/*     Leave room */}
+        {/*   </button> */}
+        {/* </div> */}
+        {currentPlayer.gameMaster ? (
+          <div className="flex w-full">
+            {gameStateEvent.status == 'waiting_for_players' ? (
+              <button
+                className="rounded-2xl bg-green-600 text-white font-semibold p-4 cursor-pointer w-full"
+                onClick={() => {
+                  socket.emit('start_game');
+                }}
+              >
+                Start Game
+              </button>
+            ) : (
+              <button
+                className="rounded-2xl bg-green-600 text-white p-4 cursor-pointer w-full disabled:opacity-60 disabled:cursor-default"
+                disabled={gameStateEvent.status == 'accepting_votes' && !allConnectedPlayersVoted}
+                onClick={() => {
+                  socket.emit('next_step');
+                }}
+              >
+                Next
+              </button>
+            )}
+          </div>
+        ) : null}
       </div>
       <div className="text-gray-900/50 text-center">
         {gameStateEvent.players.filter(p => p.connected).length} of {gameStateEvent.players.length}{' '}

@@ -105,11 +105,29 @@ const mainRoomGameCycleTest = async () => {
     for (const playerName of players)
         addedPlayerId = await RoomView.addPlayer(roomId, playerName, roomPass);
     expectedBroadcastMessage.players = [
-        { name: 'John', id: room.players[0].id, connected: true, color: colors[0] },
-        { name: 'Jay', id: room.players[1].id, connected: true, color: colors[1] },
-        { name: 'Jimmy', id: room.players[2].id, connected: true, color: colors[2] },
-        { name: 'Jordan', id: room.players[3].id, connected: true, color: colors[3] },
-        { name: 'Jimbo', id: room.players[4].id, connected: true, color: colors[4] },
+        { name: 'John', id: room.players[0].id, connected: true, color: colors[0], gameMaster: true },
+        { name: 'Jay', id: room.players[1].id, connected: true, color: colors[1], gameMaster: false },
+        {
+            name: 'Jimmy',
+            id: room.players[2].id,
+            connected: true,
+            color: colors[2],
+            gameMaster: false,
+        },
+        {
+            name: 'Jordan',
+            id: room.players[3].id,
+            connected: true,
+            color: colors[3],
+            gameMaster: false,
+        },
+        {
+            name: 'Jimbo',
+            id: room.players[4].id,
+            connected: true,
+            color: colors[4],
+            gameMaster: false,
+        },
     ];
     check(() => room.players.length === players.length);
     assertDefined(addedPlayerId, 'addedPlayerId');

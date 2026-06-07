@@ -16,6 +16,7 @@ type PlayerData = {
     id: string;
     connected: boolean;
     color: Color;
+    gameMaster: boolean;
 };
 type QuestionData = {
     id: string;
@@ -88,6 +89,7 @@ interface IRoomView {
     pauseGame(roomId: string): Promise<StreamableRoomData | null>;
     resumeGame(roomId: string): Promise<StreamableRoomData | null>;
     next(roomId: string): Promise<StreamableRoomData | null>;
+    isGameMaster(roomId: string, playerId: string): Promise<boolean>;
     getStreamableGameState(roomId: string): Promise<StreamableRoomData | null>;
 }
 declare const RoomView: IRoomView;

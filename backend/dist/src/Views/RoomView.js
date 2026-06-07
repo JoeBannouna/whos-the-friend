@@ -150,12 +150,14 @@ const RoomView = {
         const playerColor = selectUnusedColor();
         if (playerColor == null)
             return null;
+        const isFirstPlayerInRoom = targetRoom.players.length == 0;
         const playerId = randomPlayerId();
         const newPlayer = {
             name: playerName,
             id: playerId,
             connected: true,
             color: playerColor,
+            gameMaster: isFirstPlayerInRoom,
         };
         targetRoom.players.push(newPlayer);
         return playerId;
@@ -402,6 +404,15 @@ const RoomView = {
         if (!targetRoom)
             return null;
         return constructBroadcastMessage(targetRoom);
+    },
+    isGameMaster: async function (roomId, playerId) {
+        const targetRoom = await RoomView.getRoom(roomId);
+        if (!targetRoom)
+            return false;
+        const player = targetRoom.players.find(p => p.id === playerId);
+        if (player == undefined)
+            return false;
+        return player.gameMaster;
     },
 };
 export default RoomView;

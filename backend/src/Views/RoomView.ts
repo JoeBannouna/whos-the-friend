@@ -69,7 +69,13 @@ function deselectUnusedColor(bgColor: (typeof bgColors)[number]): boolean {
   }
 }
 
-type PlayerData = { name: string; id: string; connected: boolean; color: Color };
+type PlayerData = {
+  name: string;
+  id: string;
+  connected: boolean;
+  color: Color;
+  gameMaster: boolean;
+};
 type QuestionData = { id: string; text: string; icon: string };
 type CategoryData = { id: string; name: string; questions: QuestionData[] };
 type RoomStatus =
@@ -216,6 +222,7 @@ interface IRoomView {
   pauseGame(roomId: string): Promise<StreamableRoomData | null>;
   resumeGame(roomId: string): Promise<StreamableRoomData | null>;
   next(roomId: string): Promise<StreamableRoomData | null>;
+  isGameMaster(roomId: string, playerId: string): Promise<boolean>;
   getStreamableGameState(roomId: string): Promise<StreamableRoomData | null>;
 }
 
@@ -276,12 +283,15 @@ const RoomView: IRoomView = {
     const playerColor = selectUnusedColor();
     if (playerColor == null) return null;
 
+    const isFirstPlayerInRoom = targetRoom.players.length == 0;
+
     const playerId = randomPlayerId();
     const newPlayer: PlayerData = {
       name: playerName,
       id: playerId,
       connected: true,
       color: playerColor,
+      gameMaster: isFirstPlayerInRoom,
     };
     targetRoom.players.push(newPlayer);
 
@@ -572,6 +582,15 @@ const RoomView: IRoomView = {
     if (!targetRoom) return null;
 
     return constructBroadcastMessage(targetRoom);
+  },
+  isGameMaster: async function (roomId: string, playerId: string): Promise<boolean> {
+    const targetRoom = await RoomView.getRoom(roomId);
+    if (!targetRoom) return false;
+
+    const player = targetRoom.players.find(p => p.id === playerId);
+    if (player == undefined) return false;
+
+    return player.gameMaster;
   },
 };
 

@@ -11,6 +11,7 @@ export type PlayerData = {
   id: string;
   connected: boolean;
   color: { bg: string; text: string };
+  gameMaster: boolean;
 };
 type QuestionData = { id: string; text: string; icon: string };
 type CategoryData = { id: string; name: string; questions: QuestionData[] };

@@ -1,15 +1,5 @@
 import { Socket } from 'socket.io';
 import RoomView, {} from './RoomView.js';
-const socketState = {
-    sockets: [],
-};
-async function removeSocket(playerId) {
-    const socketIndex = socketState.sockets.findIndex(s => s.playerId == playerId);
-    if (socketIndex === -1)
-        return false;
-    socketState.sockets.splice(socketIndex, 1);
-    return true;
-}
 const SocketManagerView = {
     async inializeSocketListeners(io) {
         io.on('connection', async (socket) => {
@@ -56,18 +46,23 @@ const SocketManagerView = {
                     // socket.emit('request', /* … */); // emit an event to the socket
                     // io.emit('broadcast', /* … */); // emit an event to all connected sockets
                     // socket.on('reply', () => { /* … */ }); // listen to the event
-                    socket.on('remove_player', async () => {
-                        const playerRemoveEvent = await RoomView.removePlayer(roomId, playerId);
-                        emitToRoom(playerRemoveEvent);
-                        socket.disconnect();
-                    });
+                    // TODO: for now removing players is disabled completely
+                    // socket.on('remove_player', async () => {
+                    //   const playerRemoveEvent = await RoomView.removePlayer(roomId, playerId);
+                    //   emitToRoom(playerRemoveEvent);
+                    //   socket.disconnect();
+                    // });
                     socket.on('start_game', async () => {
-                        const startGameEvent = await RoomView.startGame(roomId);
-                        emitToRoom(startGameEvent);
+                        if (await RoomView.isGameMaster(roomId, playerId)) {
+                            const startGameEvent = await RoomView.startGame(roomId);
+                            emitToRoom(startGameEvent);
+                        }
                     });
                     socket.on('next_step', async () => {
-                        const nextEvent = await RoomView.next(roomId);
-                        emitToRoom(nextEvent);
+                        if (await RoomView.isGameMaster(roomId, playerId)) {
+                            const nextEvent = await RoomView.next(roomId);
+                            emitToRoom(nextEvent);
+                        }
                     });
                     socket.on('player_vote', async (vote) => {
                         const voteEvent = await RoomView.updatePlayerVoteForCurrentQuestion(roomId, vote.voterId, vote.nomineeId);
