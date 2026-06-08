@@ -190,7 +190,7 @@ type FileQuestion = { text: string; cat: string; icon: string };
 async function populateRoomContent(roomId: string): Promise<boolean> {
   try {
     const __dirname = import.meta.dirname;
-    const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions2.json');
+    const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions4.json');
 
     const response = await fs.readFile(fullPath, {
       encoding: 'utf8',

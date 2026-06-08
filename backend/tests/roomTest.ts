@@ -59,7 +59,7 @@ let jsonQuestions: { categories: FileCategory[]; questions: FileQuestion[] } = {
 };
 async function setQuestionsVariable() {
   try {
-    const response = await fs.readFile('../../public/assets/questions2.json', {
+    const response = await fs.readFile('../../public/assets/questions4.json', {
       encoding: 'utf8',
     });
     const data: { categories: FileCategory[]; questions: FileQuestion[] } = JSON.parse(response);

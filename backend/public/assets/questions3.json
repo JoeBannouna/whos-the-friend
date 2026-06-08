@@ -1,0 +1,105 @@
+{
+  "categories": [
+    { "name": "Glow Up Potential 🌱", "id": "glow"},
+    { "name": "Style & Vibe 💅", "id": "style"},
+    RENAMED TO MISCHIEf/EVIL RELATED NAME { "name": "Chaos & Drama 🔥", "id": "chaos"},
+    { "name": "Comedy 😂", "id": "comedy"},
+    { "name": "Heart of the Gold 💛", "id": "heart"},
+    { "name": "Ride-or-Die (Crisis Mode) 🚨", "id": "ride_or_die"},
+    { "name": "Trust & Loyalty 🤝", "id": "trust"},
+    { "name": "Talent & Skills 🎯", "id": "skills"},
+    { "name": "Smarts 🧠", "id": "smarts"},
+    { "name": "Romance ❤️", "id": "romance"}
+    ADD "SOCIAL OUTCAST"
+    ADD "FOODIE"
+
+  ],
+  "questions": [
+    // ROMANCE CATEGORY
+    KEEP { "text": "Who will get married first?", "cat": "romance", "icon": "💍" },
+    CHANGE TO "Who would be the most romantic person out of the group?" { "text": "Who is secretly the most romantic?", "cat": "romance", "icon": "🌹" },
+    KEEP { "text": "Who walks into a room and instantly have eyes locked on them?", "cat": "romance", "icon": "✨" },
+    KEEP { "text": "Who falls in love the fastest?", "cat": "romance", "icon": "💘" },
+    KEEP { "text": "Who gives the best relationship advice?", "cat": "romance", "icon": "💬" },
+    KEEP { "text": "Who has the most unrealistic 'type'?", "cat": "romance", "icon": "📋" },
+    ADD "Who has the most rizz without question?"
+    ADD "Who will stop hanging out with the group most, the moment they get married?"
+
+    // SMARTS CATEGORY
+    KEEP { "text": "Who has the best street smarts?", "cat": "smarts", "icon": "🗺️" },
+    ADD "Who has the highest grades in school/university?"
+    KEEP { "text": "Who is the biggest overthinker?", "cat": "smarts", "icon": "🧠" },
+    KEEP { "text": "Who reads the most — actual books, not Instagram captions?", "cat": "smarts", "icon": "📚" },
+    ADD "The whole friendgroup wins a million dollars if they elect a person to answer a random question. Who do you send?"
+    ADD "Who remembers things about the friendgroup best?"
+
+    // SOCIAL OUTCAST
+    - { "text": "Who is the most likely to ghost everyone for a week, then reappear fine?", "cat": "chaos", "icon": "👻" },
+    - Who has trouble talking to the cashier when eating out?
+    - Who would always be filming behind the camera rather than be infront of it?
+    - Who would come out of a social gathering with exactly the same number of friends they had going in?
+    - Who is the most likely to have jokes fly over their head?
+
+    // FOODIE CATEGORY
+    - Who is the pickiest eater?
+    - Who is the best at makings sweets/baking?
+    - Who spends the most money on eating out?
+    - Who eats like they have 3 stomaches inside? 
+    - Who would win a cooking competition?
+    - Who would try any food no matter how exotic?
+    - { "text": "Who would win if the group competed on a cooking show?", "cat": "skills", "icon": "👨‍🍳" },
+
+    // TRUST CATEGORY
+    KEEP { "text": "Who would you trust most to babysit your kids?", "cat": "trust", "icon": "👶" },
+    KEEP { "text": "Who would never spill a secret — no matter what?", "cat": "trust", "icon": "🤫" },
+    KEEP { "text": "Who would you trust to plan your funeral?", "cat": "trust", "icon": "🪦" },
+    KEEP { "text": "Who gives the best advice when you're stuck on a big decision?", "cat": "smarts", "icon": "💡" },
+    REMOVE { "text": "Who would you trust to read your diary and never mention it again?", "cat": "trust", "icon": "📓" },
+
+    // RIDE OR DIE CATEGORY
+    KEEP { "text": "Who would be the best person to help you hide a body (hypothetically)?", "cat": "ride_or_die", "icon": "😅" },
+    KEEP { "text": "Who would you want as your lawyer if your life depended on it?", "cat": "ride_or_die", "icon": "⚖️" },
+    KEEP { "text": "Who would survive a zombie apocalypse the longest?", "cat": "ride_or_die", "icon": "🧟" },
+    KEEP { "text": "Who would drive you to the hospital at 4am no questions asked?", "cat": "ride_or_die", "icon": "🚑" },
+    KEEP { "text": "Who would throw hands for you in a parking lot?", "cat": "ride_or_die", "icon": "🥊" },
+    KEEP { "text": "Who would you want with you to survive longest on an island?", "cat": "skills", "icon": "🏕️" },
+
+    // HEART OF GOLD CATEGORY
+    KEEP { "text": "Who is the group's unofficial therapist?", "cat": "heart", "icon": "🛋️" },
+    POSSIBLY KEEP { "text": "Who would be most likely to cry at a movie?", "cat": "heart", "icon": "😭" },
+    KEEP { "text": "Who notices first when something is off with you?", "cat": "heart", "icon": "👀" },
+    KEEP { "text": "Who sends thoughtful 'thinking of you' texts out of nowhere?", "cat": "heart", "icon": "💌" },
+    KEEP { "text": "Who would drop everything to be there for you?", "cat": "heart", "icon": "🫂" },
+
+    // COMEDY CATEGORY
+    KEEP { "text": "Whose laugh is the most contagious?", "cat": "comedy", "icon": "🤣" },
+    ADD "Who is the most likely to crack a joke at a REALLY inapproriate time"
+    CHANGE TO "Who doesn't try but is still funny?" { "text": "Who is the funniest *without trying*?", "cat": "comedy", "icon": "😆" },
+    ADD "Who tries the hardest to be funny?"
+    ADD "Who laughs at EVERY joke?"
+    ADD "Who has the biggest meme collection?"
+
+    // CHANGE THE NAME OF THIS CATEGORY TO 'mischief/evil'
+    KEEP { "text": "Who has the most unhinged group chat takes?", 
+    KEEP { "text": "Who would be first voted off the island?", "icon": "🏝️" },
+    KEEP { "text": "Who would start drama and then watch it unfold with popcorn?", "icon": "🍿" },
+    KEEP { "text": "Who would win a roast of the group — as the roaster?", "icon": "🎤" },
+    KEEP { "text": "Who would say the wildest thing at a family dinner?", "icon": "🍽️" },
+    ADD "Who will ditch the day 1s the instant they get big in life?"
+
+    // STYLE CATEGORY
+    KEEP { "text": "Who is the best dressed in the group?", "cat": "style", "icon": "👗" },
+    KEEP { "text": "Who is the most photogenic?", "cat": "style", "icon": "📸" },
+    CHANGE TO "Who will age the best out of the group?" { "text": "Who has aged the best?", "cat": "style", "icon": "🍷" },
+    CHANGE TO "Who cares about their instagram aesthetic a bit too much?" { "text": "Whose Instagram aesthetic is actually unbeatable?", "cat": "style", "icon": "📷" },
+    KEEP { "text": "Who could pull off literally any outfit?", "cat": "style", "icon": "🕶️" },
+    KEEP { "text": "Who has the best hair, hands down?", "cat": "style", "icon": "💇" },
+
+    // GLOW UP CATEGORY
+    KEEP { "text": "Who will be unrecognizable in 5 years — in a good way?", "cat": "glow", "icon": "🦋" },
+    ADD "Who will be unrecognizable in 5 years - in a bad way?"
+    KEEP { "text": "Who will surprise everyone with a complete career pivot?", "cat": "glow", "icon": "🔄" },
+    ADD "Who turned into a completely different person every since they became friends with you?"
+    ADD "Who will become a billionaire from the group?"
+  ]
+}

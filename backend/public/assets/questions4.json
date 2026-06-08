@@ -1,0 +1,95 @@
+{
+  "categories": [
+    { "name": "Glow Up Potential 🌱", "id": "glow" },
+    { "name": "Style & Vibe 💅", "id": "style" },
+    { "name": "Mischief & Evil 😈", "id": "chaos" },
+    { "name": "Comedy 😂", "id": "comedy" },
+    { "name": "Heart of Gold 💛", "id": "heart" },
+    { "name": "Ride-or-Die (Crisis Mode) 🚨", "id": "ride_or_die" },
+    { "name": "Trust & Loyalty 🤝", "id": "trust" },
+    { "name": "Smarts 🧠", "id": "smarts" },
+    { "name": "Social Outcast 🙈", "id": "social_outcast" },
+    { "name": "Foodie 🍜", "id": "foodie" },
+    { "name": "Romance ❤️", "id": "romance" }
+  ],
+  "questions": [
+    { "text": "Who will get married first?", "cat": "romance", "icon": "💍" },
+    { "text": "Who would be the most romantic person out of the group?", "cat": "romance", "icon": "🌹" },
+    { "text": "Who walks into a room and instantly have eyes locked on them?", "cat": "romance", "icon": "✨" },
+    { "text": "Who falls in love the fastest?", "cat": "romance", "icon": "💘" },
+    { "text": "Who gives the best relationship advice?", "cat": "romance", "icon": "💬" },
+    { "text": "Who has the most unrealistic 'type'?", "cat": "romance", "icon": "📋" },
+    { "text": "Who has the most rizz without question?", "cat": "romance", "icon": "😏" },
+    { "text": "Who will stop hanging out with the group most, the moment they get married?", "cat": "romance", "icon": "💒" },
+
+    { "text": "Who has the best street smarts?", "cat": "smarts", "icon": "🗺️" },
+    { "text": "Who has the highest grades in school/university?", "cat": "smarts", "icon": "📝" },
+    { "text": "Who is the biggest overthinker?", "cat": "smarts", "icon": "🧠" },
+    { "text": "Who reads the most — actual books, not Instagram captions?", "cat": "smarts", "icon": "📚" },
+    {
+      "text": "The whole friendgroup wins a million dollars if they elect a person to answer a random question. Who do you send?",
+      "cat": "smarts",
+      "icon": "💰"
+    },
+    { "text": "Who remembers small/big things about the friend group best?", "cat": "smarts", "icon": "🗂️" },
+
+    { "text": "Who is the most likely to ghost everyone for a week, then reappear fine?", "cat": "social_outcast", "icon": "👻" },
+    { "text": "Who has trouble talking to the cashier when eating out?", "cat": "social_outcast", "icon": "😬" },
+    { "text": "Who would always be filming behind the camera rather than be in front of it?", "cat": "social_outcast", "icon": "🎥" },
+    { "text": "Who would come out of a social gathering with exactly the same number of friends they had going in?", "cat": "social_outcast", "icon": "🚪" },
+    { "text": "Who is the most likely to have jokes fly over their head?", "cat": "social_outcast", "icon": "🤔" },
+
+    { "text": "Who is the pickiest eater?", "cat": "foodie", "icon": "😤" },
+    { "text": "Who is the best at making sweets/baking?", "cat": "foodie", "icon": "🍰" },
+    { "text": "Who spends the most money on eating out?", "cat": "foodie", "icon": "💸" },
+    { "text": "Who eats like they have 3 stomachs inside?", "cat": "foodie", "icon": "🍽️" },
+    { "text": "Who would win a cooking competition?", "cat": "foodie", "icon": "👨‍🍳" },
+    { "text": "Who would try any food no matter how exotic?", "cat": "foodie", "icon": "🌍" },
+
+    { "text": "Who would you trust most to babysit your kids?", "cat": "trust", "icon": "👶" },
+    { "text": "Who would never spill a secret — no matter what?", "cat": "trust", "icon": "🤫" },
+    { "text": "Who would you trust to plan your funeral?", "cat": "trust", "icon": "🪦" },
+    { "text": "Who gives the best advice when you're stuck on a big decision?", "cat": "trust", "icon": "💡" },
+    { "text": "Who would you trust to read your diary and never mention it again?", "cat": "trust", "icon": "📓" },
+
+    { "text": "Who would be the best person to help you hide a body (hypothetically)?", "cat": "ride_or_die", "icon": "😅" },
+    { "text": "Who would you want as your lawyer if your life depended on it?", "cat": "ride_or_die", "icon": "⚖️" },
+    { "text": "Who would survive a zombie apocalypse the longest?", "cat": "ride_or_die", "icon": "🧟" },
+    { "text": "Who would drive you to the hospital at 4am no questions asked?", "cat": "ride_or_die", "icon": "🚑" },
+    { "text": "Who would throw hands for you in a parking lot?", "cat": "ride_or_die", "icon": "🥊" },
+    { "text": "Who would you want with you to survive longest on an island?", "cat": "ride_or_die", "icon": "🏕️" },
+
+    { "text": "Who is the group's unofficial therapist?", "cat": "heart", "icon": "🛋️" },
+    { "text": "Who would be most likely to cry at a movie?", "cat": "heart", "icon": "😭" },
+    { "text": "Who notices first when something is off with you?", "cat": "heart", "icon": "👀" },
+    { "text": "Who sends thoughtful 'thinking of you' texts out of nowhere?", "cat": "heart", "icon": "💌" },
+    { "text": "Who would drop everything to be there for you?", "cat": "heart", "icon": "🫂" },
+
+    { "text": "Whose laugh is the most contagious?", "cat": "comedy", "icon": "🤣" },
+    { "text": "Who is the most likely to crack a joke at a REALLY inappropriate time?", "cat": "comedy", "icon": "😬" },
+    { "text": "Who doesn't try but is still funny?", "cat": "comedy", "icon": "😆" },
+    { "text": "Who tries the hardest to be funny?", "cat": "comedy", "icon": "🎭" },
+    { "text": "Who laughs at EVERY joke?", "cat": "comedy", "icon": "😂" },
+    { "text": "Who has the biggest meme collection?", "cat": "comedy", "icon": "📱" },
+
+    { "text": "Who has the most unhinged group chat takes?", "cat": "chaos", "icon": "💬" },
+    { "text": "Who would be first voted off the island?", "cat": "chaos", "icon": "🏝️" },
+    { "text": "Who would start drama and then watch it unfold with popcorn?", "cat": "chaos", "icon": "🍿" },
+    { "text": "Who would win a roast of the group — as the roaster?", "cat": "chaos", "icon": "🎤" },
+    { "text": "Who would say the wildest thing at a family dinner?", "cat": "chaos", "icon": "🍽️" },
+    { "text": "Who will ditch the day 1s the instant they get big in life?", "cat": "chaos", "icon": "🚀" },
+
+    { "text": "Who is the best dressed in the group?", "cat": "style", "icon": "👗" },
+    { "text": "Who is the most photogenic?", "cat": "style", "icon": "📸" },
+    { "text": "Who will age the best out of the group?", "cat": "style", "icon": "🍷" },
+    { "text": "Who cares about their instagram aesthetic a bit too much?", "cat": "style", "icon": "📷" },
+    { "text": "Who could pull off literally any outfit?", "cat": "style", "icon": "🕶️" },
+    { "text": "Who has the best hair, hands down?", "cat": "style", "icon": "💇" },
+
+    { "text": "Who will surprise everyone with a complete career pivot?", "cat": "glow", "icon": "🔄" },
+    { "text": "Who will be unrecognizable in 5 years — in a good way?", "cat": "glow", "icon": "🦋" },
+    { "text": "Who will be unrecognizable in 5 years — in a bad way?", "cat": "glow", "icon": "😬" },
+    { "text": "Who turned into a completely different person ever since they became friends with you?", "cat": "glow", "icon": "🔀" },
+    { "text": "Who will become a billionaire from the group?", "cat": "glow", "icon": "💰" }
+  ]
+}

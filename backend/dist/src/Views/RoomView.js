@@ -89,7 +89,7 @@ function randomPlayerId() {
 async function populateRoomContent(roomId) {
     try {
         const __dirname = import.meta.dirname;
-        const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions2.json');
+        const fullPath = path.join(__dirname, '..', '..', '..', 'public', 'assets', 'questions4.json');
         const response = await fs.readFile(fullPath, {
             encoding: 'utf8',
         });

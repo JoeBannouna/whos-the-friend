@@ -51,7 +51,7 @@ let jsonQuestions = {
 };
 async function setQuestionsVariable() {
     try {
-        const response = await fs.readFile('../../public/assets/questions2.json', {
+        const response = await fs.readFile('../../public/assets/questions4.json', {
             encoding: 'utf8',
         });
         const data = JSON.parse(response);
