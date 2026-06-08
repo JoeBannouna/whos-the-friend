@@ -4,3 +4,4 @@ DONE: Make it so that players can join mid game.
 DONE: Remove the 'Leave' and 'Next' buttons from the screen.
 DONE: Only allow the game master to press next.
 PARTIALLY DONE: Create a backend route that checks if an ID stored on the frontend is valid and show on the frontend that a user can relog with his/her previous playerId.
+Create a fail-safe when there are more players in a game than existing colors in the pfp color pool

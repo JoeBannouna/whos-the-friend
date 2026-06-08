@@ -1,26 +1,54 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+// const bgColors = [
+//   '#2caeb7',
+//   '#23b253',
+//   '#aac92c',
+//   '#c6a52b',
+//   '#ce6d2d',
+//   '#d62f2f',
+//   '#316be0',
+//   '#8b31d6',
+//   '#c932ba',
+// ] as const;
+// const textColors = [
+//   '#0f3e42',
+//   '#0c351a',
+//   '#363f0f',
+//   '#4f4112',
+//   '#442510',
+//   '#420f0f',
+//   '#14284f',
+//   '#311449',
+//   '#3d1038',
+// ] as const;
 const bgColors = [
-    '#2caeb7',
-    '#23b253',
-    '#aac92c',
-    '#c6a52b',
-    '#ce6d2d',
-    '#d62f2f',
-    '#316be0',
-    '#8b31d6',
-    '#c932ba',
+    '#f2a7b8', // soft pink
+    '#a8c8f0', // soft blue
+    '#a8d8a8', // soft green
+    '#f5d08a', // soft yellow
+    '#c4a8e8', // soft purple
+    '#f5b08a', // soft orange/peach
+    '#a8e8e0', // soft teal
+    '#f0a8d8', // soft magenta/pink
+    '#b8d8a0', // soft lime green
+    '#a8b8f0', // soft periwinkle
+    '#f0c8a8', // soft apricot
+    '#c8e8f0', // soft sky blue
 ];
 const textColors = [
-    '#0f3e42',
-    '#0c351a',
-    '#363f0f',
-    '#4f4112',
-    '#442510',
-    '#420f0f',
-    '#14284f',
-    '#311449',
-    '#3d1038',
+    '#8b3a4a', // dark pink
+    '#2a4a6b', // dark blue
+    '#2a5a2a', // dark green
+    '#7a5a10', // dark yellow/brown
+    '#4a2a7a', // dark purple
+    '#7a3a1a', // dark orange
+    '#1a5a54', // dark teal
+    '#7a2a5a', // dark magenta
+    '#3a5a1a', // dark lime
+    '#2a3a7a', // dark periwinkle
+    '#7a4a1a', // dark apricot
+    '#1a4a5a', // dark sky blue
 ];
 export const colors = bgColors.map((bgColor, i) => ({ bg: bgColor, text: textColors[i] }));
 const colorsPool = bgColors.map((bgColor, i) => ({

@@ -4,8 +4,8 @@ type VoteData = {
     questionId: string;
     categoryId: string;
 };
-declare const bgColors: readonly ["#2caeb7", "#23b253", "#aac92c", "#c6a52b", "#ce6d2d", "#d62f2f", "#316be0", "#8b31d6", "#c932ba"];
-declare const textColors: readonly ["#0f3e42", "#0c351a", "#363f0f", "#4f4112", "#442510", "#420f0f", "#14284f", "#311449", "#3d1038"];
+declare const bgColors: readonly ["#f2a7b8", "#a8c8f0", "#a8d8a8", "#f5d08a", "#c4a8e8", "#f5b08a", "#a8e8e0", "#f0a8d8", "#b8d8a0", "#a8b8f0", "#f0c8a8", "#c8e8f0"];
+declare const textColors: readonly ["#8b3a4a", "#2a4a6b", "#2a5a2a", "#7a5a10", "#4a2a7a", "#7a3a1a", "#1a5a54", "#7a2a5a", "#3a5a1a", "#2a3a7a", "#7a4a1a", "#1a4a5a"];
 export declare const colors: {
     bg: (typeof bgColors)[number];
     text: (typeof textColors)[number];
