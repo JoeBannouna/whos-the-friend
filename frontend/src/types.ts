@@ -25,11 +25,17 @@ type RoomStatus =
 
 type PodiumSpot = { playerId: string; playerName: string; votes: number };
 
+// type GameResultsData = {
+//   questionWinners: { questionId: string; winnerId: string }[];
+//   currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot | null];
+//   categoryWinners: { categoryId: string; winnerId: string }[];
+//   gameWinnerId: string | null;
+// };
 type GameResultsData = {
-  questionWinners: { questionId: string; winnerId: string }[];
-  currentPodium: [PodiumSpot, PodiumSpot, PodiumSpot | null];
-  categoryWinners: { categoryId: string; winnerId: string }[];
-  gameWinnerId: string | null;
+  questionPodiums: PodiumSpot[];
+  currentPodium: PodiumSpot[];
+  categoryPodiums: { catgeory: CategoryData; podium: PodiumSpot[] }[];
+  gamePodium: PodiumSpot[];
 };
 
 // only the data needed to be streamed over websockets

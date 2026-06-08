@@ -12,7 +12,7 @@ type RoomStatus =
 
 const hostname = import.meta.env.VITE_BACKEND_ORIGIN;
 
-function App() {
+function RoomsList() {
   const [rooms, setRooms] = useState<
     { roomName: string; roomId: string; playersNumber: number; roomStatus: RoomStatus }[]
   >([]);
@@ -57,7 +57,7 @@ function App() {
 
   return (
     <section className="p-4 md:max-w-150 mx-auto">
-      <h1 className="text-base font-bold">Rooms List</h1>
+      <h1 className="font-bold text-3xl">Rooms List</h1>
       <div>
         {rooms.map(r => (
           <div className="py-4">
@@ -105,4 +105,43 @@ function App() {
   );
 }
 
+function PastGamesList() {
+  const [games, setGames] = useState<string[]>([]);
+
+  const fetchRooms = async () => {
+    const res = await fetch(`${hostname}/past-games`);
+    const data: any = await res.json();
+    setGames(data);
+  };
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  return (
+    <section className="p-4 md:max-w-150 mx-auto">
+      <h1 className="font-bold text-3xl">Past Games</h1>
+      <div>
+        {games.map(pastGameName => (
+          <div className="py-4">
+            <Link
+              to={`/games/${pastGameName}`}
+              className="cursor-pointer p-4 block rounded-2xl bg-green-500/30 text-green-900"
+            >
+              {pastGameName}
+            </Link>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <RoomsList />
+      <PastGamesList />
+    </>
+  );
+}
 export default App;

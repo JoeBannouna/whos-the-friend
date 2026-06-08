@@ -4,22 +4,27 @@ import { animated, useSprings } from '@react-spring/web';
 
 function VotesList({
   gameStateEvent,
+  currentPodiumReplacement = undefined,
   delay,
 }: {
   gameStateEvent: StreamableRoomData;
+  currentPodiumReplacement?: StreamableRoomData['gameResults']['currentPodium'];
   delay: number;
 }) {
-  const [podiumSprings, podiumSpringsApi] = useSprings(
-    gameStateEvent.gameResults.currentPodium.length,
-    () => ({ opacity: 0, y: 24, width: '0%' })
-  );
+  const currentPodium: StreamableRoomData['gameResults']['currentPodium'] =
+    currentPodiumReplacement == undefined
+      ? gameStateEvent.gameResults.currentPodium
+      : currentPodiumReplacement;
 
-  const votesPercent = gameStateEvent.gameResults.currentPodium.map(podiumSpot => {
+  const [podiumSprings, podiumSpringsApi] = useSprings(currentPodium.length, () => ({
+    opacity: 0,
+    y: 24,
+    width: '0%',
+  }));
+
+  const votesPercent = currentPodium.map(podiumSpot => {
     if (podiumSpot == null) return null;
-    const votesPercent = (
-      (podiumSpot.votes / gameStateEvent.gameResults.currentPodium[0].votes) *
-      100
-    ).toFixed();
+    const votesPercent = ((podiumSpot.votes / currentPodium[0].votes) * 100).toFixed();
     return votesPercent;
   });
 
@@ -43,7 +48,7 @@ function VotesList({
   return (
     <div className="py-4">
       {podiumSprings.map((props, i) => {
-        const p = gameStateEvent.gameResults.currentPodium[i];
+        const p = currentPodium[i];
         if (p == null) return null;
 
         return (

@@ -20,7 +20,7 @@ function PlayerPfp({
             .map((n: string) => n[0])
             .filter((_v, i) => i < 2)
             .join('')
-        : playerName[0] + playerName[1];
+        : playerName[0] + (playerName[1] || '');
 
     let styles = '';
 

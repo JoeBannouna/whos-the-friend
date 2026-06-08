@@ -35,16 +35,16 @@ type PodiumSpot = {
     votes: number;
 };
 type GameResultsData = {
-    questionWinners: {
-        questionId: string;
-        winnerId: string;
+    questionPodiums: {
+        question: QuestionData;
+        podium: PodiumSpot[];
     }[];
     currentPodium: PodiumSpot[];
-    categoryWinners: {
-        categoryId: string;
-        winnerId: string;
+    categoryPodiums: {
+        catgeory: CategoryData;
+        podium: PodiumSpot[];
     }[];
-    gameWinnerId: string | null;
+    gamePodium: PodiumSpot[];
 };
 type RoomData = {
     name: string;

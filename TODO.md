@@ -3,4 +3,4 @@ DONE: Attach colors to players on the backend from a unique color-pool
 DONE: Make it so that players can join mid game.
 DONE: Remove the 'Leave' and 'Next' buttons from the screen.
 DONE: Only allow the game master to press next.
-Create a backend route that checks if an ID stored on the frontend is valid and show on the frontend that a user can relog with his/her previous playerId.
+PARTIALLY DONE: Create a backend route that checks if an ID stored on the frontend is valid and show on the frontend that a user can relog with his/her previous playerId.

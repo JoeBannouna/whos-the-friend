@@ -135,6 +135,15 @@ function Room() {
               </button>
             </div>
           </form>
+
+          <div className="pb-4 pt-8 font-semibold">
+            <button
+              className={`rounded-2xl cursor-pointer bg-yellow-500/40 text-yellow-900 w-full p-4 outline-none`}
+              onClick={() => navigate('/')}
+            >
+              Back to all rooms
+            </button>
+          </div>
         </>
       ) : (
         <GameScreen gameStateEvent={gameStateEvent} />

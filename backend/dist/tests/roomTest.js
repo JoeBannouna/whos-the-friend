@@ -2,6 +2,10 @@ import fs from 'fs/promises';
 import { exit } from 'node:process';
 import RoomView, { colors } from '../src/Views/RoomView.js';
 import { strict as assert } from 'node:assert';
+import util from 'util';
+function depthConsoleLog(obj) {
+    console.log(util.inspect(obj, { showHidden: false, depth: null, colors: true }));
+}
 let haltTestOnFail = true;
 let isCurrentTestPassed = true;
 function check(fn, silentSuccess = false) {
@@ -71,9 +75,9 @@ const mainRoomGameCycleTest = async () => {
     check(() => room.categories.length !== 0);
     check(() => room.categories[0].questions.length !== 0);
     check(() => room.playerVotes.length === 0);
-    check(() => room.gameResults.questionWinners.length === 0);
-    check(() => room.gameResults.categoryWinners.length === 0);
-    check(() => room.gameResults.gameWinnerId === null);
+    check(() => room.gameResults.questionPodiums.length === 0);
+    check(() => room.gameResults.categoryPodiums.length === 0);
+    check(() => room.gameResults.gamePodium.length === 0);
     check(() => room.status === 'waiting_for_players');
     check(() => room.gamePaused === false);
     check(() => room.currentCategoryId === '');
@@ -83,9 +87,9 @@ const mainRoomGameCycleTest = async () => {
         status: 'waiting_for_players',
         players: [],
         gameResults: {
-            gameWinnerId: null,
-            categoryWinners: [],
-            questionWinners: [],
+            questionPodiums: [],
+            categoryPodiums: [],
+            gamePodium: [],
             currentPodium: [
                 { playerId: '', playerName: '', votes: 0 },
                 { playerId: '', playerName: '', votes: 0 },
@@ -241,23 +245,23 @@ const mainRoomGameCycleTest = async () => {
     nextResponse = await RoomView.next(roomId);
     check(() => nextResponse !== null);
     expectedBroadcastMessage.status = 'announcing_question_winner';
-    expectedBroadcastMessage.gameResults.questionWinners.push({
-        winnerId: jayId,
-        questionId: expectedBroadcastMessage.currentQuestion.id,
-    });
     expectedBroadcastMessage.gameResults.currentPodium = [
         { playerId: jayId, playerName: 'Jay', votes: 2 },
         { playerId: jordanId, playerName: 'Jordan', votes: 1 },
         { playerId: johnId, playerName: 'John', votes: 0 },
         { playerId: jimmyId, playerName: 'Jimmy', votes: 0 },
     ];
+    expectedBroadcastMessage.gameResults.questionPodiums.push({
+        question: expectedBroadcastMessage.currentQuestion,
+        podium: expectedBroadcastMessage.gameResults.currentPodium,
+    });
     verifyObject(nextResponse, expectedBroadcastMessage);
     // after announcing said winners, we can move on to the next question!!
     nextResponse = await RoomView.next(roomId);
     check(() => nextResponse !== null);
     check(() => room.currentQuestionId == initialCategoryQuestions[1].text);
     expectedBroadcastMessage.status = 'accepting_votes';
-    expectedBroadcastMessage.gameResults.categoryWinners = [];
+    // expectedBroadcastMessage.gameResults.categoryWinners = [];
     expectedBroadcastMessage.currentQuestionVotes = [];
     expectedBroadcastMessage.currentCategory = {
         name: initialCategory.name,
@@ -293,8 +297,8 @@ const mainRoomGameCycleTest = async () => {
     // last question has been voted and wins have been annonced
     // then then moved to announcing category winner
     check(() => room.status === 'announcing_category_winner');
-    check(() => room.gameResults.categoryWinners.length === 1 &&
-        room.gameResults.categoryWinners[0].winnerId === jayId);
+    check(() => room.gameResults.categoryPodiums.length === 1 &&
+        room.gameResults.categoryPodiums[0].podium[0].playerId === jayId);
     verifyObject(room.gameResults.currentPodium, [
         { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
         { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
@@ -303,10 +307,10 @@ const mainRoomGameCycleTest = async () => {
     ]);
     assertDefined(acceptVotesResponse, 'acceptVotesResponse');
     check(() => acceptVotesResponse.status === 'announcing_category_winner');
-    check(() => acceptVotesResponse.gameResults.questionWinners.length ==
+    check(() => acceptVotesResponse.gameResults.questionPodiums.length ==
         acceptVotesResponse.currentCategory?.questions.length &&
-        acceptVotesResponse.gameResults.categoryWinners.length === 1 &&
-        acceptVotesResponse.gameResults.categoryWinners[0].winnerId === jayId);
+        acceptVotesResponse.gameResults.categoryPodiums.length === 1 &&
+        acceptVotesResponse.gameResults.categoryPodiums[0].podium[0].playerId === jayId);
     verifyObject(acceptVotesResponse.gameResults.currentPodium, [
         { playerId: jayId, playerName: 'Jay', votes: initialCategoryQuestions.length * 2 },
         { playerId: jordanId, playerName: 'Jordan', votes: initialCategoryQuestions.length },
@@ -317,7 +321,7 @@ const mainRoomGameCycleTest = async () => {
     assertDefined(moveToNextCategory, 'moveToNextCategory');
     check(() => moveToNextCategory.status == 'accepting_votes');
     check(() => moveToNextCategory.currentCategory?.id == jsonQuestions.categories[1].id);
-    check(() => moveToNextCategory.gameResults.categoryWinners.length === 1);
+    check(() => moveToNextCategory.gameResults.categoryPodiums.length === 1);
     check(() => moveToNextCategory.currentQuestionVotes.length == 0);
     // no one voted yet
     const attemptFailedMove = await RoomView.next(roomId);
@@ -351,8 +355,8 @@ const mainRoomGameCycleTest = async () => {
     const announceGameWinner = advanceToNextCategory;
     assertDefined(announceGameWinner, 'announceGameWinner');
     check(() => announceGameWinner.status === 'announcing_game_winner');
-    check(() => announceGameWinner.gameResults.gameWinnerId === jayId);
-    check(() => announceGameWinner.gameResults.categoryWinners.length === jsonQuestions.categories.length);
+    check(() => announceGameWinner.gameResults.gamePodium[0].playerId === jayId);
+    check(() => announceGameWinner.gameResults.categoryPodiums.length === jsonQuestions.categories.length);
     // TODO: There should be a test here that verifies that the game winners podium is correct here
     // ... currently there is a block of code that is copy pasted from a previous section
     // ... that tests the category winners podium. It should be adapted to a game winners podium

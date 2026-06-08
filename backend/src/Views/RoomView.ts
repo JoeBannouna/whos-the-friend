@@ -89,10 +89,10 @@ type RoomStatus =
 type PodiumSpot = { playerId: string; playerName: string; votes: number };
 
 type GameResultsData = {
-  questionWinners: { questionId: string; winnerId: string }[];
+  questionPodiums: { question: QuestionData; podium: PodiumSpot[] }[];
   currentPodium: PodiumSpot[];
-  categoryWinners: { categoryId: string; winnerId: string }[];
-  gameWinnerId: string | null;
+  categoryPodiums: { catgeory: CategoryData; podium: PodiumSpot[] }[];
+  gamePodium: PodiumSpot[];
 };
 
 type RoomData = {
@@ -121,7 +121,11 @@ async function saveGameResultsToJsonFile(room: RoomData) {
     'games',
     `${room.id}.json`
   );
-  await fs.writeFile(fullPath, JSON.stringify(room.gameResults), { encoding: 'utf8' });
+  await fs.writeFile(
+    fullPath,
+    JSON.stringify({ players: room.players, gameResults: room.gameResults }),
+    { encoding: 'utf8' }
+  );
 }
 
 type AppStateData = {
@@ -264,9 +268,9 @@ const RoomView: IRoomView = {
       currentQuestionId: '',
       playerVotes: [],
       gameResults: {
-        questionWinners: [],
-        categoryWinners: [],
-        gameWinnerId: null,
+        questionPodiums: [],
+        categoryPodiums: [],
+        gamePodium: [],
         currentPodium: [
           { playerId: '', playerName: '', votes: 0 },
           { playerId: '', playerName: '', votes: 0 },
@@ -409,6 +413,13 @@ const RoomView: IRoomView = {
       .includes(null);
 
     const updateQuestionWinners = () => {
+      const currentCategory = targetRoom.categories.find(
+        c => c.id == targetRoom.currentCategoryId
+      )!;
+      const currentQuestion = currentCategory.questions.find(
+        q => q.id == targetRoom.currentQuestionId
+      )!;
+
       const podium: PodiumSpot[] = targetRoom.players
         .map(p => ({
           playerId: p.id,
@@ -419,10 +430,9 @@ const RoomView: IRoomView = {
         }))
         .sort((p1, p2) => p2.votes - p1.votes);
 
-      const winnerId = podium[0]!.playerId;
-      targetRoom.gameResults.questionWinners.push({
-        winnerId: winnerId,
-        questionId: targetRoom.currentQuestionId,
+      targetRoom.gameResults.questionPodiums.push({
+        question: currentQuestion,
+        podium: [...podium],
       });
 
       targetRoom.gameResults.currentPodium = podium;
@@ -439,10 +449,9 @@ const RoomView: IRoomView = {
         }))
         .sort((p1, p2) => p2.votes - p1.votes);
 
-      const winnerId = podium[0]!.playerId;
-      targetRoom.gameResults.categoryWinners.push({
-        winnerId: winnerId,
-        categoryId: targetRoom.currentCategoryId,
+      targetRoom.gameResults.categoryPodiums.push({
+        catgeory: targetRoom.categories.find(c => c.id == targetRoom.currentCategoryId)!,
+        podium: [...podium],
       });
 
       targetRoom.gameResults.currentPodium = podium;
@@ -459,7 +468,8 @@ const RoomView: IRoomView = {
         }))
         .sort((p1, p2) => p2.votes - p1.votes);
 
-      targetRoom.gameResults.gameWinnerId = podium[0]!.playerId;
+      // targetRoom.gameResults.gameWinnerId = podium[0]!.playerId;
+      targetRoom.gameResults.gamePodium = [...podium];
 
       targetRoom.gameResults.currentPodium = podium;
     };
@@ -508,8 +518,9 @@ const RoomView: IRoomView = {
       targetRoom.currentQuestionId = targetRoom.categories[0]!.questions[0]!.id;
     };
 
-    const finishGame = () => {
+    const finishGame = async () => {
       // save to a database or something?
+      await saveGameResultsToJsonFile(targetRoom);
     };
 
     switch (targetRoom.status) {
@@ -546,12 +557,12 @@ const RoomView: IRoomView = {
         break;
 
       case 'announcing_game_winner':
-        finishGame();
+        await finishGame();
         targetRoom.status = 'game_finished';
         break;
 
       case 'game_finished':
-        await saveGameResultsToJsonFile(targetRoom);
+        // do nothing?
         break;
 
       default:

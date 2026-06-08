@@ -5,11 +5,11 @@ import { animated, useSpring, useSprings } from '@react-spring/web';
 import VotesList from '../components/VotesList';
 
 function AnnouncingGameWinner({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) {
-  if (gameStateEvent.gameResults.gameWinnerId == null)
+  if (gameStateEvent.gameResults.gamePodium[0] == null)
     return <div>Could not find the game winner</div>;
 
   const gameWinner = gameStateEvent.players.find(
-    p => p.id == gameStateEvent.gameResults.gameWinnerId
+    p => p.id == gameStateEvent.gameResults.gamePodium[0].playerId
   );
   if (!gameWinner) return <div>Could not find the game winner</div>;
 

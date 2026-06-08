@@ -45,4 +45,19 @@ app.post('/rooms/create', async (req, res) => {
             res.status(200).send();
     }
 });
+import fs from 'node:fs/promises';
+import path from 'node:path';
+app.get('/past-games', async (req, res) => {
+    const __dirname = import.meta.dirname;
+    const dirpath = path.join(__dirname, '..', '..', 'public', 'assets', 'games');
+    try {
+        const files = await fs.readdir(dirpath);
+        const allGames = files.filter(el => path.extname(el) === '.json');
+        res.status(200).send(allGames.map(f => f.split('.')[0]));
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send();
+    }
+});
 //# sourceMappingURL=index.js.map
