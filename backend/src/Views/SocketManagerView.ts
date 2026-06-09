@@ -52,11 +52,12 @@ const SocketManagerView: ISocketManagerView = {
           // socket.on('reply', () => { /* … */ }); // listen to the event
 
           // TODO: for now removing players is disabled completely
-          // socket.on('remove_player', async () => {
-          //   const playerRemoveEvent = await RoomView.removePlayer(roomId, playerId);
-          //   emitToRoom(playerRemoveEvent);
-          //   socket.disconnect();
-          // });
+          socket.on('remove_player', async (removedPlayerId: string) => {
+            if (await RoomView.isGameMaster(roomId, playerId)) {
+              const playerRemoveEvent = await RoomView.removePlayer(roomId, removedPlayerId);
+              emitToRoom(playerRemoveEvent);
+            }
+          });
           socket.on('start_game', async () => {
             if (await RoomView.isGameMaster(roomId, playerId)) {
               const startGameEvent = await RoomView.startGame(roomId);

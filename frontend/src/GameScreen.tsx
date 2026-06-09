@@ -12,16 +12,16 @@ import AnnouncingGameWinner from './screens/AnnouncingGameWinner.tsx';
 
 function MainGameSection({
   gameStateEvent,
-  localPlayerId,
+  localPlayer,
 }: {
   gameStateEvent: StreamableRoomData;
-  localPlayerId: string | null;
+  localPlayer: StreamableRoomData['players'][number];
 }) {
   if (gameStateEvent.status == 'waiting_for_players')
-    return <WaitingForPlayers gameStateEvent={gameStateEvent} localPlayerId={localPlayerId} />;
+    return <WaitingForPlayers gameStateEvent={gameStateEvent} localPlayer={localPlayer} />;
 
   if (gameStateEvent.status == 'accepting_votes')
-    return <AcceptingVotes gameStateEvent={gameStateEvent} localPlayerId={localPlayerId} />;
+    return <AcceptingVotes gameStateEvent={gameStateEvent} localPlayer={localPlayer} />;
 
   if (gameStateEvent.status == 'announcing_question_winner')
     return <AnnouncingQuestionWinner gameStateEvent={gameStateEvent} />;
@@ -76,7 +76,12 @@ function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) 
     playersWhoVoted.length >= gameStateEvent.players.filter(p => p.connected).length;
 
   const currentPlayer = gameStateEvent.players.find(p => p.id == localPlayerId);
-  if (currentPlayer == undefined) return <div>Something terribly wrong happened</div>;
+  if (currentPlayer == undefined)
+    return <div>Something terribly wrong happened, maybe try refreshing the page?</div>;
+  if (localPlayerId == null) return <div>Loading...</div>;
+
+  const localPlayer = gameStateEvent.players.find(p => p.id == localPlayerId);
+  if (localPlayer == undefined) return <div>Something went wrong, try refreshing the page.</div>;
 
   return (
     <>
@@ -91,7 +96,8 @@ function GameScreen({ gameStateEvent }: { gameStateEvent: StreamableRoomData }) 
         </div>
       </header>
 
-      <MainGameSection gameStateEvent={gameStateEvent} localPlayerId={localPlayerId} />
+      <MainGameSection gameStateEvent={gameStateEvent} localPlayer={localPlayer} />
+
       <div className="flex py-4">
         {/* No way to leave the room as of right now */}
         {/* <div className="flex w-full pr-2"> */}

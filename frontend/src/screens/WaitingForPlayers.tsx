@@ -3,10 +3,10 @@ import type { StreamableRoomData } from '../types';
 
 function WaitingForPlayers({
   gameStateEvent,
-  localPlayerId,
+  localPlayer,
 }: {
   gameStateEvent: StreamableRoomData;
-  localPlayerId: string | null;
+  localPlayer: StreamableRoomData['players'][number];
 }) {
   return (
     <>
@@ -17,7 +17,7 @@ function WaitingForPlayers({
             <PlayerPfp player={p} />
             <div className="px-4">{p.name}</div>
             <div className="flex items-center ml-auto">
-              {localPlayerId == p.id ? (
+              {localPlayer.id == p.id ? (
                 <div className="px-4">
                   <div className="px-3 py-1 rounded-xl bg-gray-200 text-gray-600">you</div>
                 </div>

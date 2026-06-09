@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Link } from 'react-router';
+import { socket } from './socket';
 
 type RoomStatus =
   | 'waiting_for_players'
@@ -13,6 +14,8 @@ type RoomStatus =
 const hostname = import.meta.env.VITE_BACKEND_ORIGIN;
 
 function RoomsList() {
+  const [isConnected, setIsConnected] = useState(socket.connected);
+
   const [rooms, setRooms] = useState<
     { roomName: string; roomId: string; playersNumber: number; roomStatus: RoomStatus }[]
   >([]);
@@ -57,6 +60,7 @@ function RoomsList() {
 
   return (
     <section className="p-4 md:max-w-150 mx-auto">
+      <div>{isConnected ? 'isConnected' : 'isNotConnected'}</div>
       <h1 className="font-bold text-3xl">Rooms List</h1>
       <div>
         {rooms.map(r => (

@@ -98,6 +98,7 @@ function Room() {
 
   return (
     <div className="md:max-w-150 mx-auto">
+      <div>{isConnected ? 'isConnected' : 'isNotConnected'}</div>
       {gameStateEvent === null || !isConnected ? (
         <>
           <h1 className="text-center py-4">{roomIdString}</h1>

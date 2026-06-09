@@ -6,10 +6,10 @@ import { animated, useSpring, useSprings } from '@react-spring/web';
 
 function AcceptingVotes({
   gameStateEvent,
-  localPlayerId,
+  localPlayer,
 }: {
   gameStateEvent: StreamableRoomData;
-  localPlayerId: string | null;
+  localPlayer: StreamableRoomData['players'][number];
 }) {
   const questionSpring = useSpring({
     from: { opacity: 0, y: 24 },
@@ -57,13 +57,13 @@ function AcceptingVotes({
       <h2 className="text-black/50 pb-2 pt-4 font-semibold">VOTES CAST</h2>
       {gameStateEvent.players.map((p, i) => (
         <animated.div className="py-1.5" key={p.id} style={playersSpring[i]}>
-          <div
-            className="flex items-center bg-white border border-orange-700/15 py-3 px-4 rounded-2xl"
+          <button
+            className="flex block w-full items-center bg-white border border-orange-700/15 py-3 px-2.5 rounded-2xl select-none"
             onClick={() => {
-              if (localPlayerId != p.id) {
+              if (localPlayer.id != p.id) {
                 console.log('trying');
                 const vote: StreamableRoomData['currentQuestionVotes'][0] = {
-                  voterId: localPlayerId!,
+                  voterId: localPlayer.id,
                   nomineeId: p.id,
                   categoryId: gameStateEvent.currentCategory!.id,
                   questionId: gameStateEvent.currentQuestion!.id,
@@ -73,15 +73,18 @@ function AcceptingVotes({
             }}
           >
             <PlayerPfp player={p} />
-            <div className="px-4">{p.name}</div>
+            <div className="px-4 max-w-30 overflow-x-hidden">{p.name}</div>
             <div className="flex items-center ml-auto">
               <div className="pr-3 flex">
                 {gameStateEvent.currentQuestionVotes
                   .filter(v => v.nomineeId == p.id)
                   .map(v => {
-                    const voterPlayer: StreamableRoomData['players'][0] | undefined =
-                      gameStateEvent.players.find(p => p.id == v.voterId);
-                    if (!voterPlayer) return <div>Error</div>;
+                    const voterPlayer = gameStateEvent.players.find(p => p.id == v.voterId);
+                    {
+                      /* if (!voterPlayer) return <div>NonExistentPlayerVote</div>; */
+                    }
+                    if (!voterPlayer) return null;
+
                     return (
                       <div key={v.voterId} className="w-6">
                         <PlayerPfp mode="small" player={voterPlayer} />
@@ -89,8 +92,8 @@ function AcceptingVotes({
                     );
                   })}
               </div>
-              {localPlayerId == p.id ? (
-                <div className="pr-4">
+              {localPlayer.id == p.id ? (
+                <div className="pr-2">
                   <div className="px-3 py-1 rounded-xl bg-gray-200 text-gray-600">you</div>
                 </div>
               ) : null}
@@ -98,7 +101,20 @@ function AcceptingVotes({
                 className={`w-2 h-2 rounded-full ${p.connected ? 'bg-green-400' : 'bg-red-600'}`}
               ></div>
             </div>
-          </div>
+            {localPlayer.gameMaster && localPlayer.id != p.id ? (
+              <button
+                className="pl-2"
+                onClick={() => {
+                  const confirmation = confirm('Remove this player?');
+                  if (confirmation) {
+                    socket.emit('remove_player', p.id);
+                  }
+                }}
+              >
+                ❌
+              </button>
+            ) : null}
+          </button>
         </animated.div>
       ))}
     </>

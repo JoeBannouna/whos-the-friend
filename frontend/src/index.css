@@ -143,7 +143,7 @@ body {
   color: var(--ink);
   font-family: "DM Sans", sans-serif;
   min-height: 100vh;
-  padding: 30px 20px 60px;
+  padding: 30px 8px 60px;
   background-image:
     radial-gradient(
       circle at 10% 20%,
