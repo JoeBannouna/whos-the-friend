@@ -1,10 +1,5 @@
 # Who's the friend
-A fun game to play with a friend-roup
-
-![A Home Screen Listing All Rooms](./images/image1.jpeg "Rooms List")
-![The voting screen for a question](./images/image2.jpeg "Voting Screen")
-![Result of question votes](./images/image3.jpeg "Question Votes")
-![Total votes across all questions in a specific category](./images/image4.jpeg "Category Podium")
+* A fun game to play in a friendroup! (Preview images at bottom of page)
 
 # Rules
 * Random questions appear and everyone must vote for a player given that question.
@@ -45,17 +40,24 @@ vp install
 vp dev -- --host
 ```
 running this will give an output like:
-
+```
   ➜  Local:   http://localhost:5173/
   ➜  Network: http://10.0.0.195:5173/
   ➜  Network: http://172.19.0.1:5173/
   ➜  Network: http://10.2.0.2:5173/
   ➜  press h + enter to show help
-
+```
 * One of the 'network' ip addresses is the one hosted on the wifi network.
 * Find which one works through trial and error until the app shows up on the browser.
-* All devices need to open that link.
 
+* Go to `./frontend`, create a `.env` file. 
+* Past in that file the link that worked (but replace the port with 5000)
+For example (note how the port is 5000 instead):
+```env
+VITE_BACKEND_ORIGIN="http://172.19.0.1:5000"
+```
+* All devices need to open that link.
+* Done! Everyone is ready to play.
 
 # Development
 * NodeJS required.
@@ -95,3 +97,9 @@ vp install
 ```bash
 vp dev -- --host
 ```
+
+# Preview Images
+<img src="./images/image1.jpeg" alt="A Home Screen Listing All Rooms" width=130>
+<img src="./images/image2.jpeg" alt="The voting screen for a question" width=130>
+<img src="./images/image3.jpeg" alt="Result of question votes" width=130>
+<img src="./images/image4.jpeg" alt="Total votes across all questions in a specific category" width=130>
